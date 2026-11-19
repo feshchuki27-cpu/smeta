@@ -141,6 +141,23 @@
             </div>
             <input id="panel-strip-toggle" type="checkbox" checked onchange="renderEstimate()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
           </label>
+
+          <div class="pt-1 border-t border-slate-800/80 space-y-2">
+            <label class="flex items-center justify-between cursor-pointer">
+              <div>
+                <span class="text-xs font-semibold text-white block">4. Указывать аванс в смете (СБП)</span>
+                <span class="text-[11px] text-slate-400">Выключите, если работаете без предоплаты</span>
+              </div>
+              <input id="prepay-toggle" type="checkbox" checked onchange="togglePrepayUI()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
+            </label>
+            <div id="prepay-pct-wrap" class="flex items-center justify-between gap-3 bg-slate-900/90 px-3 py-2 rounded-lg border border-slate-800">
+              <span class="text-[11px] text-slate-300">Процент аванса от работ:</span>
+              <div class="flex items-center gap-2">
+                <input id="prepay-pct-slider" type="range" min="5" max="100" step="5" value="30" oninput="syncPrepayPct(this.value)" class="w-24 accent-amber-500">
+                <span id="lbl-prepay-pct" class="mono text-xs font-bold text-amber-400 w-10 text-right">30%</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- COMPLEXITY COEFFICIENTS -->
@@ -339,8 +356,10 @@
           <!-- TOTALS FOOTER -->
           <div class="mt-6 pt-5 border-t-2 border-slate-900 grid grid-cols-1 sm:grid-cols-12 gap-4 items-center">
             <div class="sm:col-span-7 text-xs text-slate-600 leading-relaxed">
-              <div class="font-bold text-slate-900">Аванс для старта 1-го этапа и закупки (СБП)</div>
-              <div>Рекомендуемый аванс: <span id="doc-prepay" class="font-bold text-slate-900">0 ₽</span> по номеру <span id="doc-phone-qr" class="font-semibold text-slate-900"></span>.</div>
+              <div id="doc-prepay-block">
+                <div class="font-bold text-slate-900">Аванс для старта и закупки материалов (СБП)</div>
+                <div>Аванс (<span id="doc-prepay-pct-label">30</span>% от работ + материалы): <span id="doc-prepay" class="font-bold text-slate-900">0 ₽</span> по номеру <span id="doc-phone-qr" class="font-semibold text-slate-900"></span>.</div>
+              </div>
               <button onclick="sendUpdatedEstimateToBot()" class="mt-3 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow transition">
                 💾 Сохранить и получить PDF в Telegram
               </button>
@@ -775,6 +794,8 @@
         works: currentEstimateItems.map(i => ({ ...i })),
         materials: currentMaterialsList.map(m => ({ ...m })),
         showPanelStrip: document.getElementById('panel-strip-toggle').checked,
+        showPrepay: document.getElementById('prepay-toggle').checked,
+        prepayPct: parseInt(document.getElementById('prepay-pct-slider').value, 10) || 30,
         splitStages: document.getElementById('split-stages-toggle').checked,
         autoMaterials: document.getElementById('auto-materials-toggle').checked,
         matDisplayMode: document.getElementById('mat-display-mode').value,
@@ -807,6 +828,14 @@
       currentEstimateItems = Array.isArray(rec.works) ? rec.works.map(w => ({ ...w })) : [];
       currentMaterialsList = Array.isArray(rec.materials) ? rec.materials.map(m => ({ ...m })) : [];
       if (rec.showPanelStrip !== undefined) document.getElementById('panel-strip-toggle').checked = rec.showPanelStrip;
+      if (rec.showPrepay !== undefined) {
+        document.getElementById('prepay-toggle').checked = rec.showPrepay;
+        document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !rec.showPrepay);
+      }
+      if (rec.prepayPct !== undefined) {
+        document.getElementById('prepay-pct-slider').value = rec.prepayPct;
+        document.getElementById('lbl-prepay-pct').textContent = rec.prepayPct + '%';
+      }
       if (rec.splitStages !== undefined) document.getElementById('split-stages-toggle').checked = rec.splitStages;
       if (rec.autoMaterials !== undefined) document.getElementById('auto-materials-toggle').checked = rec.autoMaterials;
       if (rec.matDisplayMode) document.getElementById('mat-display-mode').value = rec.matDisplayMode;
@@ -911,13 +940,15 @@
       const works_total = stage1_sum + stage2_sum;
       const discount_rub = Math.round(works_total * (discountPct / 100));
       const grand_total = (works_total - discount_rub) + materials_total;
+      const showPrepay = document.getElementById('prepay-toggle').checked;
+      const prepayPct = parseInt(document.getElementById('prepay-pct-slider').value, 10) || 30;
       const basePrepay = splitStages ? stage1_sum : (works_total - discount_rub);
-      const prepay = Math.round(materials_total + basePrepay * 0.3);
+      const prepay = showPrepay ? Math.round(materials_total + basePrepay * (prepayPct / 100.0)) : 0;
 
       return {
         stage1_rows, stage2_rows, stage1_sum, stage2_sum, works_total,
         discount_pct: discountPct, discount_rub, materials_out, materials_total,
-        grand_total, prepay
+        grand_total, prepay, show_prepay: showPrepay, prepay_pct: prepayPct
       };
     }
 
@@ -928,6 +959,8 @@
         action: "update_estimate",
         is_dop: (docMode === 'dop'),
         show_panel_strip: document.getElementById('panel-strip-toggle').checked,
+        show_prepay: s.show_prepay,
+        prepay_pct: s.prepay_pct,
         object: document.getElementById('client-object').value || 'Объект заказчика',
         master_title: document.getElementById('master-name').value,
         master_phone: document.getElementById('master-phone').value,
@@ -1002,6 +1035,17 @@
       if (activeCoefficients.high) { mult += 0.15; labels.push(">3.2м +15%"); }
       if (activeCoefficients.urgent) { mult += 0.20; labels.push("Срочно +20%"); }
       return { mult: Math.round(mult * 100) / 100, labels };
+    }
+
+    function togglePrepayUI() {
+      const on = document.getElementById('prepay-toggle').checked;
+      document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !on);
+      renderEstimate();
+    }
+
+    function syncPrepayPct(val) {
+      document.getElementById('lbl-prepay-pct').textContent = val + '%';
+      renderEstimate();
     }
 
     function updateMarginSlider() {
@@ -1271,6 +1315,8 @@
       document.getElementById('sum-discount').textContent = '−' + formatRub(s.discount_rub) + ' ₽';
       document.getElementById('sum-materials').textContent = formatRub(s.materials_total) + ' ₽';
       document.getElementById('sum-grand').textContent = formatRub(s.grand_total) + ' ₽';
+      document.getElementById('doc-prepay-block').classList.toggle('hidden', !s.show_prepay);
+      document.getElementById('doc-prepay-pct-label').textContent = s.prepay_pct;
       document.getElementById('doc-prepay').textContent = formatRub(s.prepay) + ' ₽';
     }
 
@@ -1496,7 +1542,7 @@
           <div class="text-xs text-emerald-700">Скидка (${s.discount_pct || 0}%): <strong class="mono">−${formatRub(s.discount_rub)} ₽</strong></div>
           ${isSpecOnly ? '' : `<div class="text-xs text-slate-600">Материалы и оснастка: <strong class="mono text-slate-900">${formatRub(s.materials_total)} ₽</strong></div>`}
           <div class="pt-2 border-t border-slate-300 text-lg font-black text-slate-900 mono">ИТОГО ПО СМЕТЕ: ${formatRub(s.grand_total)} ₽</div>
-          <div class="text-xs text-slate-600">Аванс (СБП): <strong class="mono text-slate-900">${formatRub(s.prepay)} ₽</strong></div>
+          ${(rec.showPrepay !== false) ? `<div class="text-xs text-slate-600">Аванс (${rec.prepayPct || 30}% + материалы, СБП): <strong class="mono text-slate-900">${formatRub(s.prepay)} ₽</strong></div>` : ""}
         </div>
       `;
 
