@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ЭлектроСмета AI — Сметчик для электромонтажников</title>
+  <title>МастерСмета AI — Мультипрофессиональный сметчик мастеров</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,23 +22,23 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- TOP HEADER (3 CLEAN USER TABS) -->
+  <!-- TOP HEADER (4 CLEAN TABS) -->
   <header class="border-b border-slate-800 bg-slate-900/95 backdrop-blur sticky top-0 z-30">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+        <div id="header-prof-icon" class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
           ⚡
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-bold text-lg tracking-tight text-white">ЭлектроСмета AI</h1>
-            <span id="from-bot-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Голосовая смета загружена</span>
+            <h1 class="font-bold text-lg tracking-tight text-white">МастерСмета AI</h1>
+            <span id="from-bot-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Голосовая смета</span>
           </div>
-          <p class="text-xs text-slate-400">Редактор смет, прайс-лист и архив объектов</p>
+          <p id="header-prof-subtitle" class="text-xs text-slate-400">Электромонтаж • Сметы, материалы и архив объектов</p>
         </div>
       </div>
 
-      <!-- 3 NAVIGATION TABS -->
+      <!-- 4 NAVIGATION TABS -->
       <nav class="flex flex-wrap items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/70">
         <button id="tab-simulator" onclick="switchTab('simulator')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-amber-500 text-slate-950 shadow">
           ⚡ Сметчик
@@ -64,6 +64,15 @@
   <!-- MAIN CONTENT -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5">
 
+    <!-- PROFESSION SELECTOR BAR (ALWAYS ACCESSIBLE AT TOP) -->
+    <div class="mb-5 bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-lg">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">👷 Выберите вашу специальность (меняет прайс работ, расходники и ГОСТ):</span>
+        <span id="active-prof-count" class="text-[11px] text-slate-400 mono">Библиотека: 26 работ</span>
+      </div>
+      <div id="profession-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"></div>
+    </div>
+
     <!-- ==================== TAB 1: СМЕТЧИК ==================== -->
     <section id="view-simulator" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
@@ -79,11 +88,11 @@
           </button>
         </div>
 
-        <!-- PRIMARY CTA: SEND EDITED ESTIMATE BACK TO TELEGRAM BOT -->
+        <!-- PRIMARY CTA -->
         <div class="p-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 space-y-2">
           <div class="text-xs font-bold text-emerald-300">Готово к отправке заказчику?</div>
           <p class="text-[11px] text-slate-200 leading-relaxed">
-            Проверьте или отредактируйте работы и расходники ниже, затем нажмите кнопку — смета сохранится в «Мои сметы», а бот пришлёт обновлённый PDF в чат.
+            Отредактируйте работы и материалы справа, затем нажмите кнопку — смета сохранится в «Мои сметы», а бот пришлёт обновлённый PDF в чат.
           </p>
           <button onclick="sendUpdatedEstimateToBot()" class="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs sm:text-sm shadow-lg transition">
             💾 Получить обновлённый PDF в Telegram
@@ -117,30 +126,30 @@
           </div>
         </div>
 
-        <!-- STAGE SPLIT + DIAMOND WEAR + PANEL STRIP -->
+        <!-- SECTIONS TOGGLES -->
         <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
           <div class="text-xs font-bold uppercase tracking-wider text-amber-400">Разделы сметы:</div>
 
           <label class="flex items-center justify-between cursor-pointer py-1">
             <div>
-              <span class="text-xs font-semibold text-white block">1. Разбить на 2 этапа (Черновой / Чистовой)</span>
-              <span class="text-[11px] text-slate-400">Отдельные итоги по черновой и чистовой части</span>
+              <span class="text-xs font-semibold text-white block">1. Разбить на 2 этапа (Подготовка / Финиш)</span>
+              <span class="text-[11px] text-slate-400">Отдельные итоги по 1-му и 2-му этапу работ</span>
             </div>
             <input id="split-stages-toggle" type="checkbox" checked onchange="renderEstimate()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
           </label>
 
-          <label class="flex items-center justify-between cursor-pointer py-1 border-t border-slate-800/80">
+          <label id="wear-toggle-row" class="flex items-center justify-between cursor-pointer py-1 border-t border-slate-800/80">
             <div>
-              <span class="text-xs font-semibold text-white block">2. Износ алмазных коронок и дисков</span>
-              <span class="text-[11px] text-slate-400">+75 ₽ на бетон. точку и +45 ₽/м штробы в бетоне</span>
+              <span class="text-xs font-semibold text-white block">2. Учёт износа расходной оснастки (коронки/диски)</span>
+              <span class="text-[11px] text-slate-400">Автоматическая компенсация износа алмазного инструмента</span>
             </div>
             <input id="diamond-wear-toggle" type="checkbox" checked onchange="recalcAutoMaterialsKeepCustom(); renderEstimate();" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
           </label>
 
-          <label class="flex items-center justify-between cursor-pointer py-1 border-t border-slate-800/80">
+          <label id="panel-strip-toggle-row" class="flex items-center justify-between cursor-pointer py-1 border-t border-slate-800/80">
             <div>
               <span class="text-xs font-semibold text-white block">3. Маркировка модулей щита (DIN 17.5 мм)</span>
-              <span class="text-[11px] text-slate-400">Наклейка на пластрон щита в конце PDF</span>
+              <span class="text-[11px] text-slate-400">Наклейка на пластрон щита (для электриков)</span>
             </div>
             <input id="panel-strip-toggle" type="checkbox" checked onchange="renderEstimate()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
           </label>
@@ -210,7 +219,7 @@
           </div>
 
           <label class="flex items-center justify-between pt-1 cursor-pointer">
-            <span class="text-[11px] text-slate-300">🛡️ Защитный буфер <strong>+7% на медный кабель</strong>:</span>
+            <span class="text-[11px] text-slate-300">🛡️ Защитный буфер <strong>+7% на волатильные материалы</strong>:</span>
             <input id="copper-buffer-toggle" type="checkbox" checked onchange="recalcAutoMaterialsKeepCustom(); renderEstimate();" class="w-4 h-4 accent-emerald-500 rounded">
           </label>
         </div>
@@ -225,7 +234,7 @@
               📌 Сохранить в «Мои сметы»
             </button>
             <button onclick="openUnlockModal()" id="unlock-btn-top" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs shadow transition">
-              🔓 Без водяного знака (150 ₽)
+              🔓 Без знака (150 ₽ / 599 ₽)
             </button>
           </div>
         </div>
@@ -246,25 +255,25 @@
               <div id="doc-master" class="font-bold text-sm text-slate-900">ИП Соколов А.В.</div>
               <div id="doc-phone" class="mt-0.5">Тел. / СБП: +7 (921) 450-88-12</div>
               <div id="doc-date" class="text-slate-500 mt-0.5">Дата: 19.11.2026</div>
-              <div class="text-emerald-700 font-semibold mt-0.5">Гарантия: 5 лет (СП 256.1325800)</div>
+              <div id="doc-gost-label" class="text-emerald-700 font-semibold mt-0.5">Гарантия по договору (СП 256.1325800)</div>
             </div>
           </div>
 
           <!-- ROOM-BY-ROOM BREAKDOWN -->
           <div id="doc-rooms-section" class="hidden mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">📍 Разбивка точек по помещениям:</div>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1.5">📍 Разбивка объёмов по помещениям:</div>
             <div id="doc-rooms-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-700"></div>
           </div>
 
           <!-- SECTION 1: WORKS TABLE -->
           <div class="mt-5">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Ведомость электромонтажных работ</h4>
+              <h4 id="doc-works-heading" class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Ведомость работ</h4>
               <span id="doc-coeff-banner" class="hidden text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900"></span>
             </div>
 
             <div id="empty-works-notice" class="hidden p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 mb-3">
-              В смете пока нет работ. Выберите нужный вид работ в списке ниже и нажмите <strong>«+ Добавить работу»</strong>, либо продиктуйте замер голосом в чате бота.
+              В смете пока нет работ. Выберите позицию из библиотеки выбранной профессии ниже и нажмите <strong>«+ Добавить работу»</strong>, либо продиктуйте замер голосом в боте.
             </div>
 
             <div class="overflow-x-auto">
@@ -287,15 +296,13 @@
             <div id="doc-stages-summary" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div class="p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between">
                 <div>
-                  <div class="text-[10.5px] uppercase tracking-wider text-amber-400 font-bold">Этап 1: Черновой</div>
-                  <div class="text-[11px] text-slate-300">Штробы, кабель, подрозетники, щит</div>
+                  <div class="text-[10.5px] uppercase tracking-wider text-amber-400 font-bold">Этап 1: Основной / Черновой</div>
                 </div>
                 <div id="stage1-sum-val" class="mono text-sm sm:text-base font-extrabold text-amber-400">0 ₽</div>
               </div>
               <div class="p-3 rounded-xl bg-slate-100 border border-slate-300 text-slate-900 flex items-center justify-between">
                 <div>
-                  <div class="text-[10.5px] uppercase tracking-wider text-slate-600 font-bold">Этап 2: Чистовой</div>
-                  <div class="text-[11px] text-slate-500">Розетки, светильники, техника</div>
+                  <div class="text-[10.5px] uppercase tracking-wider text-slate-600 font-bold">Этап 2: Финишный / Доп.</div>
                 </div>
                 <div id="stage2-sum-val" class="mono text-sm sm:text-base font-extrabold text-slate-900">0 ₽</div>
               </div>
@@ -314,7 +321,7 @@
           <!-- SECTION 2: EDITABLE MATERIALS TABLE -->
           <div id="doc-materials-section" class="mt-6 pt-4 border-t border-slate-300">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Расходные материалы, автоматика и оснастка</h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Расходные материалы и комплектующие</h4>
               <button onclick="recalcAutoMaterialsKeepCustom(); renderEstimate(); showToast('Материалы пересчитаны по работам');" class="text-[11px] text-emerald-700 hover:underline font-semibold">
                 🔄 Пересчитать по работам
               </button>
@@ -323,7 +330,7 @@
               <table class="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
                   <tr class="border-b border-slate-400 text-[11px] uppercase text-slate-600">
-                    <th class="py-1.5 pr-2">Материал / Оснастка</th>
+                    <th class="py-1.5 pr-2">Материал / Комплектующие</th>
                     <th class="py-1.5 px-1 text-center">Ед.</th>
                     <th class="py-1.5 px-2 text-center">Кол-во</th>
                     <th id="th-mat-price" class="py-1.5 px-2 text-right">Цена (₽)</th>
@@ -337,12 +344,12 @@
 
             <!-- ADD CUSTOM MATERIAL FORM -->
             <div class="mt-3 p-3 rounded-xl bg-slate-100 border border-slate-300">
-              <div class="text-[11px] font-bold text-slate-700 mb-2">➕ Добавить расходник или автоматику:</div>
+              <div class="text-[11px] font-bold text-slate-700 mb-2">➕ Добавить свой расходник или оборудование:</div>
               <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                <input id="custom-mat-name" type="text" placeholder="Название (напр. Реле напряжения ЗУБР D2-63)" class="sm:col-span-5 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900">
+                <input id="custom-mat-name" type="text" placeholder="Название материала или оборудования" class="sm:col-span-5 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900">
                 <input id="custom-mat-unit" type="text" value="шт." placeholder="Ед." class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-center">
                 <input id="custom-mat-qty" type="number" min="1" value="1" placeholder="Кол-во" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
-                <input id="custom-mat-price" type="number" min="0" step="10" value="3400" placeholder="Цена ₽" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
+                <input id="custom-mat-price" type="number" min="0" step="10" value="1500" placeholder="Цена ₽" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
                 <button onclick="addCustomMaterialManual()" class="sm:col-span-1 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition text-center">
                   +
                 </button>
@@ -350,7 +357,7 @@
             </div>
           </div>
 
-          <!-- DIN-RAIL PANEL LABELING STRIP -->
+          <!-- DIN-RAIL PANEL LABELING STRIP (ELECTRICIAN ONLY) -->
           <div id="doc-panel-strip-section" class="mt-6 pt-4 border-t border-dashed border-slate-400">
             <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2">✂️ Маркировка модулей электрощита (DIN 17.5 мм):</div>
             <div id="doc-panel-strip-grid" class="grid grid-cols-4 sm:grid-cols-8 border-2 border-slate-900 rounded-lg overflow-hidden text-center text-[10px]"></div>
@@ -397,12 +404,9 @@
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
-            <span class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Справочник расходников</span>
-            <h2 class="text-xl font-bold text-white mt-0.5">Базовые цены на черновые материалы и ваши позиции</h2>
+            <span class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Справочник расходников выбранной профессии</span>
+            <h2 id="catalog-mats-title" class="text-xl font-bold text-white mt-0.5">Базовые цены на расходные материалы</h2>
           </div>
-          <button onclick="syncSupplierFeed()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition shadow">
-            🔄 Обновить по прайсу ЭТМ / Кабель.РФ
-          </button>
         </div>
 
         <div class="overflow-x-auto mb-4">
@@ -422,9 +426,9 @@
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
           <div class="text-xs font-bold text-amber-400 mb-2">➕ Добавить свой постоянный материал в справочник:</div>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
-            <input id="cat-new-mat-name" type="text" placeholder="Наименование (напр. Дифавтомат ABB DS201 C16 A30)" class="sm:col-span-6 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            <input id="cat-new-mat-name" type="text" placeholder="Наименование материала" class="sm:col-span-6 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
             <input id="cat-new-mat-unit" type="text" value="шт." class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center">
-            <input id="cat-new-mat-price" type="number" min="1" value="4200" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 text-right mono">
+            <input id="cat-new-mat-price" type="number" min="1" value="1500" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 text-right mono">
             <button onclick="addNewCatalogMaterial()" class="sm:col-span-2 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition">
               Сохранить
             </button>
@@ -435,8 +439,8 @@
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div>
-            <span class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Справочник работ (26 позиций)</span>
-            <h2 class="text-xl font-bold text-white mt-0.5">Прайс-лист на электромонтажные работы</h2>
+            <span class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Справочник работ выбранной профессии</span>
+            <h2 id="catalog-works-title" class="text-xl font-bold text-white mt-0.5">Прайс-лист на работы</h2>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="applyRegionalMultiplier(1.0)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">Регионы РФ (×1.0)</button>
@@ -468,7 +472,7 @@
           <div>
             <span class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Архив объектов мастера</span>
             <h2 class="text-xl font-bold text-white mt-0.5">Мои сохранённые сметы</h2>
-            <p class="text-xs text-slate-400 mt-1">Каждая голосовая или отредактированная смета автоматически сохраняется здесь. Вы можете открыть любой объект, внести правки и заново выгрузить PDF в Telegram.</p>
+            <p class="text-xs text-slate-400 mt-1">Нажмите «👁️ Просмотр PDF», чтобы открыть готовый чистый документ прямо в приложении, или «✏️ Править» для редактирования.</p>
           </div>
           <button onclick="startNewBlankEstimate()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition">
             + Создать новую смету
@@ -478,30 +482,28 @@
         <div id="history-empty" class="hidden p-8 rounded-xl bg-slate-950 border border-slate-800 text-center">
           <div class="text-3xl mb-2">🗂️</div>
           <div class="text-sm font-semibold text-white">У вас пока нет сохранённых смет</div>
-          <p class="text-xs text-slate-400 mt-1">Продиктуйте замер голосом в чате бота и откройте смету в приложении — она сразу появится в этом списке.</p>
+          <p class="text-xs text-slate-400 mt-1">Продиктуйте замер голосом в чате бота и откройте смету в приложении — она сразу появится здесь.</p>
         </div>
 
         <div id="history-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
       </div>
     </section>
 
-
     <!-- ==================== TAB 4: ПОДПИСКА (ЮKASSA / СБП) ==================== -->
     <section id="view-subscription" class="hidden max-w-4xl mx-auto space-y-6">
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
         <div class="text-center max-w-xl mx-auto mb-8">
-          <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">Тарифы ЭлектроСмета AI</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-3">Чистые PDF-сметы без ограничений</h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-2">Оплата принимается безопасно через <strong>ЮKassa (СБП и банковские карты РФ)</strong> прямо внутри Telegram с автоматической активацией за 3 секунды.</p>
+          <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">Тарифы МастерСмета AI</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-3">Чистые PDF-сметы для всех специальностей</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2">Оплата принимается безопасно через <strong>ЮKassa (СБП и банковские карты РФ)</strong> с мгновенной активацией внутри Telegram.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- CARD 1: MONTHLY PRO SUBSCRIPTION 599 RUB -->
           <div class="relative p-6 rounded-2xl bg-gradient-to-b from-amber-500/15 to-slate-950 border-2 border-amber-500 flex flex-col justify-between shadow-2xl">
             <div>
               <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Выбор прорабов и мастеров</span>
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">Выгоднее в 10 раз</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Выбор мастеров и прорабов</span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">Безлимит 30 дней</span>
               </div>
               <h3 class="text-xl font-extrabold text-white">Месячная PRO-подписка</h3>
               <div class="mt-3 flex items-baseline gap-1.5">
@@ -510,9 +512,9 @@
               </div>
               <ul class="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-200">
                 <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span><strong>Безлимитное количество</strong> чистых PDF-смет без водяного знака</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Длинные голосовые замеры (до 10+ минут) для крупных объектов и прорабов</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Распознавание любых <strong>нестандартных работ и своих материалов</strong> голосом</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Акты доп. работ (Допы), маркировка щита DIN 17.5 мм и архив смет</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Доступ ко всем 6 библиотекам профессий (электрика, потолки, окна, климат, плитка, сантехника)</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Длинные голосовые до 10+ мин и любые нестандартные работы</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Акты доп. работ (Допы) и архив «Мои сметы»</span></li>
               </ul>
             </div>
             <button onclick="requestYooKassaSubscription()" class="mt-6 w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition">
@@ -520,7 +522,6 @@
             </button>
           </div>
 
-          <!-- CARD 2: SINGLE PDF UNLOCK 150 RUB -->
           <div class="p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
             <div>
               <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Разовый платёж</span>
@@ -531,7 +532,7 @@
               </div>
               <ul class="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-300">
                 <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Мгновенный перевыпуск текущей сметы без демо-штампа</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Все ваши правки работ, материалов, аванса и реквизитов СБП</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Все ваши правки работ, материалов и аванса СБП</span></li>
                 <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Без привязки карты и автосписаний</span></li>
               </ul>
             </div>
@@ -545,15 +546,13 @@
 
   </main>
 
-  <!-- FULLSCREEN DOCUMENT PREVIEW MODAL (PDF-VIEW INSIDE APP) -->
+  <!-- FULLSCREEN DOCUMENT PREVIEW MODAL -->
   <div id="doc-preview-modal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm overflow-y-auto p-3 sm:p-6">
     <div class="max-w-3xl mx-auto">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-3 sticky top-0 z-10 bg-slate-900/95 p-3 rounded-xl border border-slate-700 shadow-lg">
+        <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">📄 Просмотр готового документа</span>
         <div class="flex items-center gap-2">
-          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">📄 Просмотр готового документа</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button id="preview-edit-btn" onclick="editFromPreviewModal()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition">
+          <button onclick="editFromPreviewModal()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition">
             ✏️ Редактировать
           </button>
           <button onclick="closeDocPreviewModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-600 transition">
@@ -565,28 +564,25 @@
     </div>
   </div>
 
-  <!-- PAYWALL MODAL (YOOKASSA / SBP — 150 RUB) -->
+  <!-- PAYWALL MODAL -->
   <div id="unlock-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
       <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <h3 class="text-lg font-bold text-white">Снятие водяного знака (ЮKassa / СБП)</h3>
+        <h3 class="text-lg font-bold text-white">Оплата через ЮKassa (СБП / Карта РФ)</h3>
         <button onclick="closeUnlockModal()" class="text-slate-400 hover:text-white text-sm">✕</button>
       </div>
-      <p class="text-xs text-slate-300 mt-3 leading-relaxed">
-        Оплатите снятие демо-штампа через <strong>СБП или банковскую карту РФ (ЮKassa)</strong> — бот сразу пришлёт чистый PDF-документ в чат.
-      </p>
       <div class="my-4 space-y-2.5">
         <button onclick="requestYooKassaSubscription()" class="w-full text-left p-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border-2 border-amber-500 flex items-center justify-between transition">
           <div>
             <div class="text-sm font-bold text-amber-300">⭐ Месячная PRO-подписка (Безлимит)</div>
-            <div class="text-xs text-slate-300">30 дней чистых PDF без ограничений • ЮKassa / СБП</div>
+            <div class="text-xs text-slate-300">30 дней чистых PDF • Все 6 профессий</div>
           </div>
           <span class="mono font-black text-amber-400 text-lg">599 ₽</span>
         </button>
         <button onclick="requestYooKassaPayment()" class="w-full text-left p-3.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 flex items-center justify-between transition">
           <div>
             <div class="text-sm font-bold text-white">Разово снять знак с 1 сметы</div>
-            <div class="text-xs text-slate-400">Оплата по СБП / Картой РФ (ЮKassa)</div>
+            <div class="text-xs text-slate-400">Оплата по СБП / Картой РФ</div>
           </div>
           <span class="mono font-bold text-white text-base">150 ₽</span>
         </button>
@@ -595,48 +591,192 @@
   </div>
 
   <script>
-    const STORAGE_HISTORY_KEY = 'electrosmeta_history_v4';
-    const STORAGE_PROFILE_KEY = 'electrosmeta_profile_v4';
+    const STORAGE_HISTORY_KEY = 'mastersmeta_history_v6';
+    const STORAGE_PROFILE_KEY = 'mastersmeta_profile_v6';
 
-    const ELECTRICAL_CATALOG = [
-      { id: "el_01", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в бетоне / монолите", unit: "шт.", price: 650 },
-      { id: "el_02", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в кирпиче", unit: "шт.", price: 450 },
-      { id: "el_03", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в газоблоке / гипсе / ГКЛ", unit: "шт.", price: 350 },
-      { id: "el_04", stage: 1, cat: "Штробление", name: "Штробление стен под кабель в бетоне (с пылесосом)", unit: "м.п.", price: 550 },
-      { id: "el_05", stage: 1, cat: "Штробление", name: "Штробление стен в кирпиче / штукатурке", unit: "м.п.", price: 350 },
-      { id: "el_06", stage: 1, cat: "Штробление", name: "Штробление стен в газоблоке / пеноблоке", unit: "м.п.", price: 250 },
-      { id: "el_07", stage: 1, cat: "Прокладка кабеля", name: "Прокладка силового кабеля ВВГнг-LS (в гофре / по потолку)", unit: "м.п.", price: 160 },
-      { id: "el_08", stage: 1, cat: "Прокладка кабеля", name: "Укладка кабеля в готовую штробу с фиксацией", unit: "м.п.", price: 110 },
-      { id: "el_09", stage: 1, cat: "Прокладка кабеля", name: "Прокладка слаботочного кабеля (UTP витая пара / ТВ)", unit: "м.п.", price: 120 },
-      { id: "el_10", stage: 1, cat: "Распредкоробки", name: "Монтаж и расключение распределительной коробки (сварка/опрессовка)", unit: "шт.", price: 1200 },
-      { id: "el_11", stage: 1, cat: "Электрощиты", name: "Сборка и коммутация электрощита до 24 модулей", unit: "шт.", price: 6500 },
-      { id: "el_12", stage: 1, cat: "Электрощиты", name: "Сборка и коммутация электрощита на 36 модулей", unit: "шт.", price: 9500 },
-      { id: "el_13", stage: 1, cat: "Электрощиты", name: "Сборка и коммутация электрощита на 54–72 модуля", unit: "шт.", price: 14500 },
-      { id: "el_14", stage: 1, cat: "Электрощиты", name: "Выдалбливание ниши под встраиваемый электрощит в бетоне", unit: "шт.", price: 4500 },
-      { id: "el_15", stage: 1, cat: "Электрощиты", name: "Установка и подключение модульной автоматики (автомат / УЗО / АВДТ)", unit: "мод.", price: 350 },
-      { id: "el_16", stage: 2, cat: "Чистовой монтаж", name: "Установка механизма розетки / выключателя (чистовая)", unit: "шт.", price: 300 },
-      { id: "el_17", stage: 2, cat: "Освещение", name: "Монтаж и подключение точечного светильника / спота", unit: "шт.", price: 450 },
-      { id: "el_18", stage: 2, cat: "Освещение", name: "Сборка и навеска люстры / подвесного светильника", unit: "шт.", price: 1500 },
-      { id: "el_19", stage: 2, cat: "Освещение", name: "Монтаж светодиодной ленты с профилем и блоком питания", unit: "м.п.", price: 650 },
-      { id: "el_20", stage: 2, cat: "Силовая техника", name: "Подключение варочной панели / духового шкафа", unit: "шт.", price: 1800 },
-      { id: "el_21", stage: 2, cat: "Климат и тепло", name: "Монтаж электрического тёплого пола с терморегулятором", unit: "компл.", price: 2800 },
-      { id: "el_22", stage: 2, cat: "Силовая техника", name: "Вывод и подключение водонагревателя (бойлера)", unit: "шт.", price: 1400 },
-      { id: "el_23", stage: 1, cat: "Защита и контур", name: "Монтаж системы уравнивания потенциалов (КУП в санузле)", unit: "шт.", price: 1800 },
-      { id: "el_24", stage: 1, cat: "Защита и контур", name: "Монтаж модульно-штыревого контура заземления (частный дом)", unit: "компл.", price: 12000 },
-      { id: "el_25", stage: 1, cat: "Проходы", name: "Алмазное сверление сквозного отверстия в стене до 250 мм", unit: "шт.", price: 600 },
-      { id: "el_26", stage: 1, cat: "Временные работы", name: "Демонтаж старой электропроводки и разводка временного света", unit: "компл.", price: 4500 }
-    ];
+    // БИБЛИОТЕКА 6 ПРОФЕССИЙ (РАБОТЫ + РАСХОДНИКИ + ОТРАСЛЕВЫЕ ГОСТЫ)
+    const PROFESSIONS_DB = {
+      electrician: {
+        id: "electrician",
+        icon: "⚡",
+        shortName: "Электрик",
+        title: "Смета на электромонтажные работы",
+        subtitle: "Электромонтаж • Сметы, материалы и маркировка щита",
+        gost: "Гарантия: 5 лет (СП 256.1325800 / ПУЭ-7)",
+        hasPanelStrip: true,
+        hasDiamondWear: true,
+        works: [
+          { id: "el_01", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в бетоне / монолите", unit: "шт.", price: 650 },
+          { id: "el_02", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в кирпиче", unit: "шт.", price: 450 },
+          { id: "el_03", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в газоблоке / ГКЛ", unit: "шт.", price: 350 },
+          { id: "el_04", stage: 1, cat: "Штробление", name: "Штробление стен под кабель в бетоне (с пылесосом)", unit: "м.п.", price: 550 },
+          { id: "el_05", stage: 1, cat: "Штробление", name: "Штробление стен в кирпиче / штукатурке", unit: "м.п.", price: 350 },
+          { id: "el_06", stage: 1, cat: "Штробление", name: "Штробление стен в газоблоке", unit: "м.п.", price: 250 },
+          { id: "el_07", stage: 1, cat: "Кабель", name: "Прокладка силового кабеля ВВГнг-LS (в гофре / по потолку)", unit: "м.п.", price: 160 },
+          { id: "el_08", stage: 1, cat: "Кабель", name: "Укладка кабеля в готовую штробу", unit: "м.п.", price: 110 },
+          { id: "el_09", stage: 1, cat: "Слаботочка", name: "Прокладка слаботочного кабеля (UTP витая пара / ТВ)", unit: "м.п.", price: 120 },
+          { id: "el_10", stage: 1, cat: "Коробки", name: "Монтаж и расключение распредкоробки (сварка/опрессовка)", unit: "шт.", price: 1200 },
+          { id: "el_11", stage: 1, cat: "Щиты", name: "Сборка электрощита до 24 модулей", unit: "шт.", price: 6500 },
+          { id: "el_12", stage: 1, cat: "Щиты", name: "Сборка электрощита на 36 модулей", unit: "шт.", price: 9500 },
+          { id: "el_13", stage: 1, cat: "Щиты", name: "Сборка электрощита на 54–72 модуля", unit: "шт.", price: 14500 },
+          { id: "el_14", stage: 1, cat: "Щиты", name: "Выдалбливание ниши под электрощит в бетоне", unit: "шт.", price: 4500 },
+          { id: "el_16", stage: 2, cat: "Чистовой", name: "Установка механизма розетки / выключателя", unit: "шт.", price: 300 },
+          { id: "el_17", stage: 2, cat: "Освещение", name: "Монтаж точечного светильника / спота", unit: "шт.", price: 450 },
+          { id: "el_18", stage: 2, cat: "Освещение", name: "Навеска люстры / подвесного светильника", unit: "шт.", price: 1500 },
+          { id: "el_19", stage: 2, cat: "Освещение", name: "Монтаж светодиодной ленты с профилем и БП", unit: "м.п.", price: 650 },
+          { id: "el_20", stage: 2, cat: "Техника", name: "Подключение варочной панели / духового шкафа", unit: "шт.", price: 1800 },
+          { id: "el_21", stage: 2, cat: "Тепло", name: "Монтаж электрического тёплого пола с терморегулятором", unit: "компл.", price: 2800 },
+          { id: "el_24", stage: 1, cat: "Защита", name: "Монтаж контура заземления (частный дом)", unit: "компл.", price: 12000 }
+        ],
+        materials: [
+          { id: "mat_pod", name: "Подрозетники углублённые 68×60 мм (Schneider) + алебастр", unit: "шт.", price: 48, rule: "1 шт. на точку бурения", volatile: false },
+          { id: "mat_vvg25", name: "Кабель силовой ВВГнг(А)-LS 3×2.5 мм² ГОСТ", unit: "м.п.", price: 118, rule: "62% силового кабеля", volatile: true },
+          { id: "mat_vvg15", name: "Кабель силовой ВВГнг(А)-LS 3×1.5 мм² ГОСТ", unit: "м.п.", price: 76, rule: "38% силового кабеля", volatile: true },
+          { id: "mat_gofra", name: "Гофра ПВХ d20 с зондом + клипсы и дюбель-гвозди", unit: "м.п.", price: 34, rule: "100% метража кабеля", volatile: false },
+          { id: "mat_utp", name: "Кабель витая пара UTP Cat 5e Cu (медь)", unit: "м.п.", price: 45, rule: "100% слаботочки", volatile: true },
+          { id: "mat_box", name: "Коробки распаячные IP54 + гильзы ГМЛ / WAGO", unit: "компл.", price: 390, rule: "1 компл. на коробку", volatile: false },
+          { id: "mat_auto", name: "Модульная автоматика (Вводной АВ, УЗО, АВ групп)", unit: "групп", price: 1150, rule: "1 группа на 3 модуля щита", volatile: false }
+        ]
+      },
+      ceilings: {
+        id: "ceilings",
+        icon: "✨",
+        shortName: "Потолки",
+        title: "Смета на монтаж натяжных потолков",
+        subtitle: "Натяжные потолки • Полотна, теневой профиль, световые линии",
+        gost: "Гарантия на полотно: 10 лет • Монтаж: 3 года",
+        hasPanelStrip: false,
+        hasDiamondWear: false,
+        works: [
+          { id: "cl_01", stage: 1, cat: "Полотно", name: "Монтаж ПВХ-полотна MSD Premium / BAUF (мат/сатин)", unit: "м²", price: 550 },
+          { id: "cl_02", stage: 1, cat: "Полотно", name: "Монтаж тканевого полотна Descor / Clipso", unit: "м²", price: 1450 },
+          { id: "cl_03", stage: 1, cat: "Профиль", name: "Монтаж алюминиевого стенового профиля (багета)", unit: "м.п.", price: 220 },
+          { id: "cl_04", stage: 1, cat: "Профиль", name: "Монтаж теневого профиля EuroKRAAB / Flexy", unit: "м.п.", price: 750 },
+          { id: "cl_05", stage: 1, cat: "Профиль", name: "Монтаж парящего профиля с LED-подсветкой", unit: "м.п.", price: 950 },
+          { id: "cl_06", stage: 1, cat: "Свет", name: "Установка закладной и подключение точечного светильника", unit: "шт.", price: 650 },
+          { id: "cl_07", stage: 1, cat: "Свет", name: "Установка закладной и навеска люстры", unit: "шт.", price: 1200 },
+          { id: "cl_08", stage: 1, cat: "Свет", name: "Монтаж световой линии / встроенного трека SLOTT", unit: "м.п.", price: 2200 },
+          { id: "cl_09", stage: 2, cat: "Шторы", name: "Монтаж скрытой ниши под карниз ПК-5 / ПК-15", unit: "м.п.", price: 1600 },
+          { id: "cl_10", stage: 2, cat: "Допы", name: "Обвод трубы отопления / стояка с термокольцом", unit: "шт.", price: 450 },
+          { id: "cl_11", stage: 2, cat: "Допы", name: "Обработка дополнительного угла (свыше 4-х)", unit: "шт.", price: 250 },
+          { id: "cl_12", stage: 2, cat: "Допы", name: "Сверление керамогранита при монтаже багета", unit: "м.п.", price: 600 }
+        ],
+        materials: [
+          { id: "cmat_pvc", name: "Полотно ПВХ BAUF 270 / MSD Evolution (с гарпуном)", unit: "м²", price: 340, rule: "По площади полотна", volatile: true },
+          { id: "cmat_prof", name: "Профиль стеновой алюминиевый / теневой + дюбель-гвозди", unit: "м.п.", price: 280, rule: "По периметру профиля", volatile: true },
+          { id: "cmat_ins", name: "Маскировочная лента ПВХ (вставка по периметру)", unit: "м.п.", price: 65, rule: "По периметру стенового профиля", volatile: false },
+          { id: "cmat_plat", name: "Универсальные платформы, термокольца, клей, кабель ВВГ", unit: "компл.", price: 180, rule: "На каждый светильник / люстру", volatile: false }
+        ]
+      },
+      hvac: {
+        id: "hvac",
+        icon: "❄️",
+        shortName: "Кондиционеры",
+        title: "Смета на монтаж систем кондиционирования",
+        subtitle: "Кондиционеры и вентиляция • Трассы, блоки, вакуумирование",
+        gost: "Гарантия на монтаж и герметичность трассы: 3 года",
+        hasPanelStrip: false,
+        hasDiamondWear: true,
+        works: [
+          { id: "ac_01", stage: 1, cat: "Монтаж", name: "Стандартный монтаж сплит-системы 07–09 BTU (трасса до 3м)", unit: "компл.", price: 11500 },
+          { id: "ac_02", stage: 1, cat: "Монтаж", name: "Стандартный монтаж сплит-системы 12–18 BTU", unit: "компл.", price: 14500 },
+          { id: "ac_03", stage: 1, cat: "Монтаж", name: "Монтаж мульти-сплит системы (1 наружный + 2–3 внутренних)", unit: "компл.", price: 26000 },
+          { id: "ac_04", stage: 1, cat: "Трасса", name: "Прокладка фреоновой трассы сверх стандарта (медь + дренаж)", unit: "м.п.", price: 1400 },
+          { id: "ac_05", stage: 1, cat: "Штробление", name: "Штробление стены в бетоне под трассу кондиционера 60×60", unit: "м.п.", price: 1600 },
+          { id: "ac_06", stage: 1, cat: "Штробление", name: "Штробление стены в газоблоке / кирпиче под трассу", unit: "м.п.", price: 950 },
+          { id: "ac_07", stage: 1, cat: "Отверстия", name: "Бурение дополнительного сквозного отверстия d45–55 мм", unit: "шт.", price: 1200 },
+          { id: "ac_08", stage: 2, cat: "Навеска", name: "Второй этап: навеска внутреннего блока, вакуумирование, пуск", unit: "шт.", price: 4500 },
+          { id: "ac_09", stage: 2, cat: "Дренаж", name: "Установка дренажной помпы (насоса отвода конденсата)", unit: "шт.", price: 3500 },
+          { id: "ac_10", stage: 2, cat: "Высотные", name: "Установка наружного блока на вентилируемый фасад / корзину", unit: "шт.", price: 4000 }
+        ],
+        materials: [
+          { id: "acmat_pipe", name: "Труба медная 1/4 + 3/8 (ГОСТ) + теплоизоляция K-Flex + ПВС 5×1.5", unit: "м.п.", price: 980, rule: "По метражу трассы", volatile: true },
+          { id: "acmat_brack", name: "Кронштейны усиленные 450×450 + виброопоры + анкеры", unit: "компл.", price: 1450, rule: "1 компл. на каждый наружный блок", volatile: false },
+          { id: "acmat_dren", name: "Труба дренажная металлопласт / шланг d16 + тефлон-лента", unit: "м.п.", price: 140, rule: "По метражу трассы", volatile: false }
+        ]
+      },
+      windows: {
+        id: "windows",
+        icon: "🪟",
+        shortName: "Окна ПВХ",
+        title: "Смета на монтаж окон ПВХ и отделку откосов",
+        subtitle: "Окна и балконы • Монтаж по ГОСТ 30971, откосы, подоконники",
+        gost: "Монтаж по ГОСТ 30971-2012 • Гарантия: 5 лет",
+        hasPanelStrip: false,
+        hasDiamondWear: false,
+        works: [
+          { id: "wn_01", stage: 1, cat: "Демонтаж", name: "Демонтаж старого деревянного / ПВХ окна с выносом", unit: "м²", price: 650 },
+          { id: "wn_02", stage: 1, cat: "Монтаж", name: "Монтаж окна ПВХ в кирпичном / панельном доме", unit: "м²", price: 1850 },
+          { id: "wn_03", stage: 1, cat: "Монтаж", name: "Монтаж балконного блока / остекления лоджии", unit: "м²", price: 2100 },
+          { id: "wn_04", stage: 1, cat: "Монтаж", name: "Монтаж окна по ГОСТ (ПСУЛ + паро- и гидроизоляция)", unit: "м.п.", price: 450 },
+          { id: "wn_05", stage: 2, cat: "Отделка", name: "Установка подоконника ПВХ (Danke / Crystallit / стандарт)", unit: "м.п.", price: 950 },
+          { id: "wn_06", stage: 2, cat: "Отделка", name: "Установка наружного металлического отлива с герметизацией", unit: "м.п.", price: 550 },
+          { id: "wn_07", stage: 2, cat: "Отделка", name: "Отделка внутренних откосов сэндвич-панелью 10 мм", unit: "м.п.", price: 1100 },
+          { id: "wn_08", stage: 2, cat: "Сервис", name: "Регулировка фурнитуры створки и замена уплотнителя", unit: "шт.", price: 900 },
+          { id: "wn_09", stage: 2, cat: "Допы", name: "Установка москитной сетки / детского замка", unit: "шт.", price: 650 }
+        ],
+        materials: [
+          { id: "wmat_foam", name: "Профессиональная монтажная пена (зимняя/всесезонная) + анкеры", unit: "компл.", price: 950, rule: "На каждые 2 м² остекления", volatile: false },
+          { id: "wmat_tape", name: "Лента ПСУЛ + пароизоляция + герметик Стиз-А/Б", unit: "м.п.", price: 210, rule: "По периметру монтажа по ГОСТ", volatile: false },
+          { id: "wmat_sand", name: "Сэндвич-панель ПВХ 10 мм + F-профиль + жидкий пластик Cosmofen", unit: "м.п.", price: 680, rule: "По метражу откосов", volatile: true }
+        ]
+      },
+      tiler: {
+        id: "tiler",
+        icon: "🧱",
+        shortName: "Плиточник",
+        title: "Смета на плиточные и облицовочные работы",
+        subtitle: "Плиточник • Керамогранит, запил 45°, гидроизоляция, затирка",
+        gost: "Работы по СП 71.13330 • Гарантия: 3 года",
+        hasPanelStrip: false,
+        hasDiamondWear: true,
+        works: [
+          { id: "tl_01", stage: 1, cat: "Подготовка", name: "Грунтование и обмазочная гидроизоляция стен/пола в 2 слоя", unit: "м²", price: 550 },
+          { id: "tl_02", stage: 1, cat: "Подготовка", name: "Выравнивание стен цементной штукатуркой по маякам", unit: "м²", price: 900 },
+          { id: "tl_03", stage: 1, cat: "Укладка", name: "Укладка керамической плитки (стены / пол, стандарт)", unit: "м²", price: 2100 },
+          { id: "tl_04", stage: 1, cat: "Укладка", name: "Укладка керамогранита (60×60 / 120×60 см)", unit: "м²", price: 2800 },
+          { id: "tl_05", stage: 1, cat: "Резка", name: "Запил торца керамогранита под угол 45° (заусовка)", unit: "м.п.", price: 1400 },
+          { id: "tl_06", stage: 1, cat: "Резка", name: "Сверление отверстия в керамограните алмазной коронкой", unit: "шт.", price: 550 },
+          { id: "tl_07", stage: 2, cat: "Затирка", name: "Затирка швов цементной затиркой (Ceresit / Litokol)", unit: "м²", price: 400 },
+          { id: "tl_08", stage: 2, cat: "Затирка", name: "Затирка швов двухкомпонентной эпоксидной затиркой", unit: "м²", price: 1100 },
+          { id: "tl_09", stage: 2, cat: "Допы", name: "Установка и облицовка скрытого люка-невидимки", unit: "шт.", price: 4500 },
+          { id: "tl_10", stage: 2, cat: "Допы", name: "Герметизация примыканий ванны/углов санитарным силиконом", unit: "м.п.", price: 350 }
+        ],
+        materials: [
+          { id: "tmat_glue", name: "Клей плиточный усиленный C2TE S1 (мешок 25 кг)", unit: "меш.", price: 1150, rule: "1 мешок на 4 м² плитки", volatile: false },
+          { id: "tmat_svp", name: "Система выравнивания плитки СВП (зажимы + клинья) + грунт", unit: "компл.", price: 90, rule: "На каждый м² укладки", volatile: false },
+          { id: "tmat_hydro", name: "Гидроизоляция эластичная + гидроизоляционная лента углов", unit: "м²", price: 420, rule: "По площади гидроизоляции", volatile: false }
+        ]
+      },
+      plumber: {
+        id: "plumber",
+        icon: "🔧",
+        shortName: "Сантехник",
+        title: "Смета на сантехнические работы и отопление",
+        subtitle: "Сантехника и отопление • Коллекторы, PEX, инсталляции, радиаторы",
+        gost: "Опрессовка системы давлением 6 бар • Гарантия: 5 лет",
+        hasPanelStrip: false,
+        hasDiamondWear: true,
+        works: [
+          { id: "pl_01", stage: 1, cat: "Водопровод", name: "Монтаж водорозетки (точка ХВС/ГВС + канализация)", unit: "точка", price: 2800 },
+          { id: "pl_02", stage: 1, cat: "Узел ввода", name: "Сборка коллекторного узла (редукторы, фильтры, защита от протечек)", unit: "узел", price: 16500 },
+          { id: "pl_03", stage: 1, cat: "Штробление", name: "Штробление стен в бетоне под трубы водопровода/канализации", unit: "м.п.", price: 950 },
+          { id: "pl_04", stage: 1, cat: "Инсталляция", name: "Монтаж и подключение рамы инсталляции унитаза", unit: "шт.", price: 6500 },
+          { id: "pl_05", stage: 1, cat: "Отопление", name: "Монтаж и обвязка радиатора отопления (лучевая схема PEX)", unit: "шт.", price: 5500 },
+          { id: "pl_06", stage: 1, cat: "Отопление", name: "Укладка водяного тёплого пола (труба PEX-a + подложка)", unit: "м²", price: 950 },
+          { id: "pl_07", stage: 2, cat: "Чистовая", name: "Установка ванны / душевого поддона с сифоном", unit: "шт.", price: 5500 },
+          { id: "pl_08", stage: 2, cat: "Чистовая", name: "Установка унитаза / тумбы с раковиной и смесителем", unit: "шт.", price: 3200 },
+          { id: "pl_09", stage: 2, cat: "Чистовая", name: "Установка и подключение полотенцесушителя / бойлера", unit: "шт.", price: 3800 }
+        ],
+        materials: [
+          { id: "pmat_pex", name: "Труба сшитый полиэтилен PEX-a 16×2.2 (Rehau/Stout) + энергофлекс", unit: "м.п.", price: 260, rule: "5 м на каждую точку", volatile: true },
+          { id: "pmat_fit", name: "Аксиальные фитинги, водорозетки, канализация Ostendorf", unit: "компл.", price: 1450, rule: "1 компл. на каждую точку", volatile: true },
+          { id: "pmat_coll", name: "Коллекторы FAR/Stout + шаровые краны + фильтры + редукторы", unit: "узел", price: 24500, rule: "На каждый узел ввода", volatile: true }
+        ]
+      }
+    };
 
-    const MATERIALS_CATALOG = [
-      { id: "mat_pod", name: "Подрозетники углублённые 68×60 мм (Schneider Electric) + алебастр", unit: "шт.", price: 48, rule: "1 шт. на точку бурения", isCopper: false },
-      { id: "mat_vvg25", name: "Кабель силовой ВВГнг(А)-LS 3×2.5 мм² (ГОСТ, розетки)", unit: "м.п.", price: 118, rule: "62% силового кабеля", isCopper: true },
-      { id: "mat_vvg15", name: "Кабель силовой ВВГнг(А)-LS 3×1.5 мм² (ГОСТ, свет)", unit: "м.п.", price: 76, rule: "38% силового кабеля", isCopper: true },
-      { id: "mat_gofra", name: "Труба гофрированная ПВХ d20 + клипсы и дюбель-гвозди", unit: "м.п.", price: 34, rule: "100% метража кабеля", isCopper: false },
-      { id: "mat_utp", name: "Кабель витая пара UTP Cat 5e 4PR Cu (медь)", unit: "м.п.", price: 45, rule: "100% слаботочной трассы", isCopper: true },
-      { id: "mat_box", name: "Коробки распаячные IP54 + гильзы ГМЛ / WAGO", unit: "компл.", price: 390, rule: "1 компл. на коробку", isCopper: false },
-      { id: "mat_auto", name: "Модульная автоматика (Вводной АВ, УЗО тип А, АВ групп)", unit: "групп", price: 1150, rule: "1 группа на 3 модуля щита", isCopper: false }
-    ];
-
+    let currentProfId = "electrician";
     let currentEstimateId = null;
     let currentEstimateItems = [];
     let currentRoomsList = [];
@@ -644,6 +784,10 @@
     let activeCoefficients = { furnished: false, high: false, urgent: false };
     let docMode = 'main';
     let savedHistory = [];
+
+    function getActiveProf() {
+      return PROFESSIONS_DB[currentProfId] || PROFESSIONS_DB.electrician;
+    }
 
     window.addEventListener('DOMContentLoaded', () => {
       try {
@@ -655,25 +799,66 @@
 
       loadMasterProfile();
       loadHistoryFromStorage();
-      populateWorkDropdown();
-      renderCatalogTable();
-      renderMaterialsCatalogTable();
+      document.getElementById('doc-date').textContent = 'Дата: ' + new Date().toLocaleDateString('ru-RU');
 
-      const todayStr = new Date().toLocaleDateString('ru-RU');
-      document.getElementById('doc-date').textContent = 'Дата: ' + todayStr;
+      renderProfessionSelector();
 
-      // 1) Приоритет: загрузка голосовой сметы из URL (?data=... или #data=...)
       if (loadEstimateFromUrlParams()) {
         saveCurrentEstimateToHistory(false);
       } else if (savedHistory.length > 0) {
-        // 2) Если открыто из меню бота — загружаем последнюю смету пользователя
         openHistoryEstimate(savedHistory[0].id, false);
       } else {
-        // 3) Если пользователь зашёл впервые — чистая пустая смета без шаблонов-заглушек
+        applyProfessionUI(currentProfId, false);
         startNewBlankEstimate(false);
       }
       renderHistoryList();
     });
+
+    function renderProfessionSelector() {
+      const grid = document.getElementById('profession-grid');
+      grid.innerHTML = Object.values(PROFESSIONS_DB).map(p => {
+        const active = (p.id === currentProfId);
+        return `
+          <button onclick="selectProfession('${p.id}')" class="px-2.5 py-2 rounded-xl border text-left transition flex items-center gap-2 ${active ? 'bg-amber-500 text-slate-950 border-amber-400 font-bold shadow' : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-600'}">
+            <span class="text-lg">${p.icon}</span>
+            <span class="text-xs leading-tight">${p.shortName}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectProfession(profId) {
+      if (!PROFESSIONS_DB[profId] || profId === currentProfId) return;
+      currentProfId = profId;
+      saveMasterProfile();
+      currentEstimateItems = [];
+      currentMaterialsList = [];
+      applyProfessionUI(profId, true);
+      renderEstimate();
+    }
+
+    function applyProfessionUI(profId, notify) {
+      currentProfId = PROFESSIONS_DB[profId] ? profId : "electrician";
+      const prof = getActiveProf();
+      renderProfessionSelector();
+
+      document.getElementById('header-prof-icon').textContent = prof.icon;
+      document.getElementById('header-prof-subtitle').textContent = prof.subtitle;
+      document.getElementById('active-prof-count').textContent = `Библиотека: ${prof.works.length} работ`;
+      document.getElementById('doc-gost-label').textContent = prof.gost;
+      document.getElementById('catalog-works-title').textContent = `Прайс-лист: ${prof.shortName}`;
+      document.getElementById('catalog-mats-title').textContent = `Расходники: ${prof.shortName}`;
+
+      // Показываем профильные тумблеры только для релевантных профессий
+      document.getElementById('panel-strip-toggle-row').classList.toggle('hidden', !prof.hasPanelStrip);
+      document.getElementById('wear-toggle-row').classList.toggle('hidden', !prof.hasDiamondWear);
+
+      populateWorkDropdown();
+      renderCatalogTable();
+      renderMaterialsCatalogTable();
+
+      if (notify) showToast(`Выбрана специальность: ${prof.icon} ${prof.shortName}`);
+    }
 
     function decodeBase64UrlUtf8(b64url) {
       let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
@@ -688,14 +873,17 @@
       try {
         let rawDataParam = null;
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('data')) {
-          rawDataParam = urlParams.get('data');
-        } else if (window.location.hash && window.location.hash.includes('data=')) {
-          rawDataParam = window.location.hash.split('data=')[1].split('&')[0];
-        }
+        if (urlParams.has('data')) rawDataParam = urlParams.get('data');
+        else if (window.location.hash && window.location.hash.includes('data=')) rawDataParam = window.location.hash.split('data=')[1].split('&')[0];
         if (!rawDataParam) return false;
 
         const payload = JSON.parse(decodeBase64UrlUtf8(rawDataParam));
+        if (payload.prof && PROFESSIONS_DB[payload.prof]) {
+          currentProfId = payload.prof;
+        }
+        applyProfessionUI(currentProfId, false);
+        const prof = getActiveProf();
+
         currentEstimateId = 'est_' + Date.now();
         document.getElementById('from-bot-badge').classList.remove('hidden');
 
@@ -710,38 +898,23 @@
         currentEstimateItems = [];
         if (Array.isArray(payload.works)) {
           payload.works.forEach((w, i) => {
-            const found = ELECTRICAL_CATALOG.find(c => c.id === w.id || c.name === w.name);
+            const found = prof.works.find(c => c.id === w.id || c.name === w.name);
             if (found) {
               if (w.price) found.price = w.price;
               currentEstimateItems.push({ id: found.id, qty: w.qty || 1 });
             } else if (w.name) {
               const customId = 'custom_w_' + Date.now() + '_' + i;
-              ELECTRICAL_CATALOG.push({
-                id: customId,
-                stage: w.stage || 1,
-                cat: "Нестандартная работа",
-                name: w.name,
-                unit: w.unit || "шт.",
-                price: w.price || 1000
-              });
+              prof.works.push({ id: customId, stage: w.stage || 1, cat: "Доп. позиция", name: w.name, unit: w.unit || "шт.", price: w.price || 1000 });
               currentEstimateItems.push({ id: customId, qty: w.qty || 1 });
             }
           });
         }
 
-        // Пересчитываем авто-материалы по распознанным работам + добавляем кастомные из голоса
         currentMaterialsList = [];
         recalcAutoMaterialsKeepCustom();
         if (Array.isArray(payload.materials)) {
           payload.materials.forEach(m => {
-            currentMaterialsList.push({
-              name: m.name,
-              unit: m.unit || 'шт.',
-              qty: m.qty || 1,
-              price: m.price || 0,
-              isCustom: true,
-              isWear: false
-            });
+            currentMaterialsList.push({ name: m.name, unit: m.unit || 'шт.', qty: m.qty || 1, price: m.price || 0, isCustom: true, isWear: false });
           });
         }
 
@@ -769,91 +942,108 @@
     }
 
     function recalcAutoMaterialsKeepCustom() {
+      const prof = getActiveProf();
       const preservedCustom = currentMaterialsList.filter(m => m.isCustom);
-      let totalPods = 0, concretePods = 0, concreteGrooves = 0;
-      let totalPowerCable = 0, totalUtpCable = 0, totalBoxes = 0, shieldModules = 0;
-
-      currentEstimateItems.forEach(entry => {
-        if (["el_01", "el_02", "el_03"].includes(entry.id)) totalPods += entry.qty;
-        if (entry.id === "el_01") concretePods += entry.qty;
-        if (entry.id === "el_04") concreteGrooves += entry.qty;
-        if (["el_07", "el_08"].includes(entry.id)) totalPowerCable += entry.qty;
-        if (entry.id === "el_09") totalUtpCable += entry.qty;
-        if (entry.id === "el_10") totalBoxes += entry.qty;
-        if (entry.id === "el_11") shieldModules += 24 * entry.qty;
-        if (entry.id === "el_12") shieldModules += 36 * entry.qty;
-        if (entry.id === "el_13") shieldModules += 54 * entry.qty;
-      });
-
       const marginPct = parseInt(document.getElementById('mat-margin-slider').value, 10) || 0;
-      const copperBuffer = document.getElementById('copper-buffer-toggle').checked;
-      const diamondWearOn = document.getElementById('diamond-wear-toggle').checked;
+      const volatileBuffer = document.getElementById('copper-buffer-toggle').checked;
+      const wearOn = prof.hasDiamondWear && document.getElementById('diamond-wear-toggle').checked;
 
       function getPrice(matId) {
-        const cat = MATERIALS_CATALOG.find(m => m.id === matId);
+        const cat = prof.materials.find(m => m.id === matId);
         let base = cat ? cat.price : 100;
-        if (copperBuffer && cat && cat.isCopper) base *= 1.07;
+        if (volatileBuffer && cat && cat.volatile) base *= 1.07;
         base *= (1 + marginPct / 100.0);
         return Math.round(base);
       }
 
       const list = [];
-      if (totalPods > 0) {
-        const c = MATERIALS_CATALOG.find(m => m.id === "mat_pod");
-        list.push({ name: c.name, unit: c.unit, qty: totalPods, price: getPrice("mat_pod"), isCustom: false });
-      }
-      if (totalPowerCable > 0) {
-        const c25 = MATERIALS_CATALOG.find(m => m.id === "mat_vvg25");
-        const c15 = MATERIALS_CATALOG.find(m => m.id === "mat_vvg15");
-        const cg = MATERIALS_CATALOG.find(m => m.id === "mat_gofra");
-        list.push({ name: c25.name, unit: c25.unit, qty: Math.round(totalPowerCable * 0.62), price: getPrice("mat_vvg25"), isCustom: false });
-        list.push({ name: c15.name, unit: c15.unit, qty: Math.round(totalPowerCable * 0.38), price: getPrice("mat_vvg15"), isCustom: false });
-        list.push({ name: cg.name, unit: cg.unit, qty: totalPowerCable, price: getPrice("mat_gofra"), isCustom: false });
-      }
-      if (totalUtpCable > 0) {
-        const cu = MATERIALS_CATALOG.find(m => m.id === "mat_utp");
-        list.push({ name: cu.name, unit: cu.unit, qty: totalUtpCable, price: getPrice("mat_utp"), isCustom: false });
-      }
-      if (totalBoxes > 0) {
-        const cb = MATERIALS_CATALOG.find(m => m.id === "mat_box");
-        list.push({ name: cb.name, unit: cb.unit, qty: totalBoxes, price: getPrice("mat_box"), isCustom: false });
-      }
-      if (shieldModules > 0) {
-        const ca = MATERIALS_CATALOG.find(m => m.id === "mat_auto");
-        list.push({ name: ca.name, unit: ca.unit, qty: Math.max(6, Math.round(shieldModules / 3)), price: getPrice("mat_auto"), isCustom: false });
-      }
-      if (diamondWearOn && (concretePods > 0 || concreteGrooves > 0)) {
-        list.push({
-          name: `Износ алмазных коронок, дисков штробореза и мешков пылесоса (${concretePods} бетон. точек / ${concreteGrooves} м штробы)`,
-          unit: "компл.", qty: 1, price: (concretePods * 75) + (concreteGrooves * 45), isCustom: false, isWear: true
-        });
+      const qtyById = (ids) => currentEstimateItems.filter(i => ids.includes(i.id)).reduce((a, b) => a + b.qty, 0);
+
+      if (currentProfId === 'electrician') {
+        const pods = qtyById(["el_01", "el_02", "el_03"]);
+        const cPods = qtyById(["el_01"]);
+        const cGrooves = qtyById(["el_04"]);
+        const cable = qtyById(["el_07", "el_08"]);
+        const utp = qtyById(["el_09"]);
+        const boxes = qtyById(["el_10"]);
+        const mods = qtyById(["el_11"]) * 24 + qtyById(["el_12"]) * 36 + qtyById(["el_13"]) * 54;
+        if (pods > 0) list.push({ name: prof.materials[0].name, unit: "шт.", qty: pods, price: getPrice("mat_pod"), isCustom: false });
+        if (cable > 0) {
+          list.push({ name: prof.materials[1].name, unit: "м.п.", qty: Math.round(cable * 0.62), price: getPrice("mat_vvg25"), isCustom: false });
+          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: Math.round(cable * 0.38), price: getPrice("mat_vvg15"), isCustom: false });
+          list.push({ name: prof.materials[3].name, unit: "м.п.", qty: cable, price: getPrice("mat_gofra"), isCustom: false });
+        }
+        if (utp > 0) list.push({ name: prof.materials[4].name, unit: "м.п.", qty: utp, price: getPrice("mat_utp"), isCustom: false });
+        if (boxes > 0) list.push({ name: prof.materials[5].name, unit: "компл.", qty: boxes, price: getPrice("mat_box"), isCustom: false });
+        if (mods > 0) list.push({ name: prof.materials[6].name, unit: "групп", qty: Math.max(6, Math.round(mods / 3)), price: getPrice("mat_auto"), isCustom: false });
+        if (wearOn && (cPods > 0 || cGrooves > 0)) {
+          list.push({ name: `Износ алмазных коронок и дисков (${cPods} тчк / ${cGrooves} м)`, unit: "компл.", qty: 1, price: cPods * 75 + cGrooves * 45, isCustom: false, isWear: true });
+        }
+      } else if (currentProfId === 'ceilings') {
+        const area = qtyById(["cl_01", "cl_02"]);
+        const perim = qtyById(["cl_03", "cl_04", "cl_05"]);
+        const lights = qtyById(["cl_06", "cl_07"]);
+        if (area > 0) list.push({ name: prof.materials[0].name, unit: "м²", qty: area, price: getPrice("cmat_pvc"), isCustom: false });
+        if (perim > 0) {
+          list.push({ name: prof.materials[1].name, unit: "м.п.", qty: perim, price: getPrice("cmat_prof"), isCustom: false });
+          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: perim, price: getPrice("cmat_ins"), isCustom: false });
+        }
+        if (lights > 0) list.push({ name: prof.materials[3].name, unit: "компл.", qty: lights, price: getPrice("cmat_plat"), isCustom: false });
+      } else if (currentProfId === 'hvac') {
+        const blocks = qtyById(["ac_01", "ac_02", "ac_03"]);
+        const trace = qtyById(["ac_04"]) + blocks * 3;
+        const grooves = qtyById(["ac_05"]);
+        if (trace > 0) {
+          list.push({ name: prof.materials[0].name, unit: "м.п.", qty: trace, price: getPrice("acmat_pipe"), isCustom: false });
+          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: trace, price: getPrice("acmat_dren"), isCustom: false });
+        }
+        if (blocks > 0) list.push({ name: prof.materials[1].name, unit: "компл.", qty: blocks, price: getPrice("acmat_brack"), isCustom: false });
+        if (wearOn && grooves > 0) list.push({ name: `Износ алмазных дисков штробореза (${grooves} м бетона)`, unit: "компл.", qty: 1, price: grooves * 95, isCustom: false, isWear: true });
+      } else if (currentProfId === 'windows') {
+        const sqm = qtyById(["wn_02", "wn_03"]);
+        const gostM = qtyById(["wn_04"]);
+        const slopes = qtyById(["wn_07"]);
+        if (sqm > 0) list.push({ name: prof.materials[0].name, unit: "компл.", qty: Math.max(1, Math.ceil(sqm / 2)), price: getPrice("wmat_foam"), isCustom: false });
+        if (gostM > 0) list.push({ name: prof.materials[1].name, unit: "м.п.", qty: gostM, price: getPrice("wmat_tape"), isCustom: false });
+        if (slopes > 0) list.push({ name: prof.materials[2].name, unit: "м.п.", qty: slopes, price: getPrice("wmat_sand"), isCustom: false });
+      } else if (currentProfId === 'tiler') {
+        const area = qtyById(["tl_03", "tl_04"]);
+        const hydro = qtyById(["tl_01"]);
+        const cuts = qtyById(["tl_05"]) + qtyById(["tl_06"]);
+        if (area > 0) {
+          list.push({ name: prof.materials[0].name, unit: "меш.", qty: Math.max(1, Math.ceil(area / 4)), price: getPrice("tmat_glue"), isCustom: false });
+          list.push({ name: prof.materials[1].name, unit: "компл.", qty: area, price: getPrice("tmat_svp"), isCustom: false });
+        }
+        if (hydro > 0) list.push({ name: prof.materials[2].name, unit: "м²", qty: hydro, price: getPrice("tmat_hydro"), isCustom: false });
+        if (wearOn && cuts > 0) list.push({ name: `Износ алмазного диска / черепашек по керамограниту`, unit: "компл.", qty: 1, price: cuts * 80, isCustom: false, isWear: true });
+      } else if (currentProfId === 'plumber') {
+        const pts = qtyById(["pl_01"]);
+        const nodes = qtyById(["pl_02"]);
+        const grooves = qtyById(["pl_03"]);
+        if (pts > 0) {
+          list.push({ name: prof.materials[0].name, unit: "м.п.", qty: pts * 5, price: getPrice("pmat_pex"), isCustom: false });
+          list.push({ name: prof.materials[1].name, unit: "компл.", qty: pts, price: getPrice("pmat_fit"), isCustom: false });
+        }
+        if (nodes > 0) list.push({ name: prof.materials[2].name, unit: "узел", qty: nodes, price: getPrice("pmat_coll"), isCustom: false });
+        if (wearOn && grooves > 0) list.push({ name: `Износ алмазных дисков штробореза (${grooves} м бетона)`, unit: "компл.", qty: 1, price: grooves * 80, isCustom: false, isWear: true });
       }
 
       preservedCustom.forEach(cm => list.push(cm));
       currentMaterialsList = list;
     }
 
-    // СОХРАНЕНИЕ И ЗАГРУЗКА ИСТОРИИ (РАЗДЕЛ 3: МОИ СМЕТЫ)
     function loadHistoryFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_HISTORY_KEY);
         savedHistory = raw ? JSON.parse(raw) : [];
-      } catch (e) {
-        savedHistory = [];
-      }
-      updateHistoryBadge();
+      } catch (e) { savedHistory = []; }
+      document.getElementById('history-count-badge').textContent = savedHistory.length;
     }
 
     function persistHistory() {
-      try {
-        localStorage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(savedHistory));
-      } catch (e) {}
-      updateHistoryBadge();
-      renderHistoryList();
-    }
-
-    function updateHistoryBadge() {
+      try { localStorage.setItem(STORAGE_HISTORY_KEY, JSON.stringify(savedHistory)); } catch (e) {}
       document.getElementById('history-count-badge').textContent = savedHistory.length;
+      renderHistoryList();
     }
 
     function saveCurrentEstimateToHistory(showNotification) {
@@ -862,9 +1052,13 @@
         return;
       }
       if (!currentEstimateId) currentEstimateId = 'est_' + Date.now();
+      const prof = getActiveProf();
       const summary = computeTotalsSummary();
       const record = {
         id: currentEstimateId,
+        profId: currentProfId,
+        profIcon: prof.icon,
+        profName: prof.shortName,
         date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
         object: document.getElementById('client-object').value || 'Объект заказчика',
         docMode: docMode,
@@ -872,7 +1066,7 @@
         rooms: [...currentRoomsList],
         works: currentEstimateItems.map(i => ({ ...i })),
         materials: currentMaterialsList.map(m => ({ ...m })),
-        showPanelStrip: document.getElementById('panel-strip-toggle').checked,
+        showPanelStrip: prof.hasPanelStrip && document.getElementById('panel-strip-toggle').checked,
         showPrepay: document.getElementById('prepay-toggle').checked,
         prepayPct: parseInt(document.getElementById('prepay-pct-slider').value, 10) || 30,
         splitStages: document.getElementById('split-stages-toggle').checked,
@@ -885,11 +1079,9 @@
         worksCount: currentEstimateItems.length,
         materialsCount: currentMaterialsList.length
       };
-
       const existingIdx = savedHistory.findIndex(h => h.id === record.id);
       if (existingIdx >= 0) savedHistory[existingIdx] = record;
       else savedHistory.unshift(record);
-
       if (savedHistory.length > 50) savedHistory = savedHistory.slice(0, 50);
       persistHistory();
       if (showNotification) showToast('Смета сохранена в раздел «Мои сметы»');
@@ -898,6 +1090,9 @@
     function openHistoryEstimate(id, notify = true) {
       const rec = savedHistory.find(h => h.id === id);
       if (!rec) return;
+      if (rec.profId && PROFESSIONS_DB[rec.profId]) {
+        applyProfessionUI(rec.profId, false);
+      }
       currentEstimateId = rec.id;
       docMode = rec.docMode || 'main';
       document.getElementById('doc-mode-select').value = docMode;
@@ -915,9 +1110,6 @@
         document.getElementById('prepay-pct-slider').value = rec.prepayPct;
         document.getElementById('lbl-prepay-pct').textContent = rec.prepayPct + '%';
       }
-      if (rec.splitStages !== undefined) document.getElementById('split-stages-toggle').checked = rec.splitStages;
-      if (rec.autoMaterials !== undefined) document.getElementById('auto-materials-toggle').checked = rec.autoMaterials;
-      if (rec.matDisplayMode) document.getElementById('mat-display-mode').value = rec.matDisplayMode;
       switchTab('simulator');
       renderEstimate();
       if (notify) showToast('Открыта смета: ' + rec.object);
@@ -942,7 +1134,7 @@
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-3">
           <div>
             <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded ${h.docMode === 'dop' ? 'bg-amber-500/20 text-amber-300' : 'bg-sky-500/20 text-sky-300'}">${h.docMode === 'dop' ? 'Акт доп. работ' : 'Основная смета'}</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">${h.profIcon || '⚡'} ${h.profName || 'Электрик'} • ${h.docMode === 'dop' ? 'Доп' : 'Смета'}</span>
               <span class="mono text-[11px] text-slate-400">${h.date}</span>
             </div>
             <div class="font-bold text-white text-sm mt-1">${h.object}</div>
@@ -951,15 +1143,9 @@
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
             <div class="mono text-base font-extrabold text-amber-400">${formatRub(h.grandTotal)} ₽</div>
             <div class="flex flex-wrap items-center gap-1.5">
-              <button onclick="openDocPreviewModal('${h.id}')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
-                👁️ Просмотр PDF
-              </button>
-              <button onclick="openHistoryEstimate('${h.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-                ✏️ Править
-              </button>
-              <button onclick="deleteHistoryEstimate('${h.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-600/80 text-slate-300 hover:text-white text-xs transition" title="Удалить">
-                🗑️
-              </button>
+              <button onclick="openDocPreviewModal('${h.id}')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">👁️ Просмотр PDF</button>
+              <button onclick="openHistoryEstimate('${h.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">✏️ Править</button>
+              <button onclick="deleteHistoryEstimate('${h.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-600/80 text-slate-300 hover:text-white text-xs transition">🗑️</button>
             </div>
           </div>
         </div>
@@ -973,6 +1159,7 @@
           const p = JSON.parse(raw);
           if (p.name) document.getElementById('master-name').value = p.name;
           if (p.phone) document.getElementById('master-phone').value = p.phone;
+          if (p.prof && PROFESSIONS_DB[p.prof]) currentProfId = p.prof;
         }
       } catch (e) {}
     }
@@ -981,12 +1168,14 @@
       try {
         localStorage.setItem(STORAGE_PROFILE_KEY, JSON.stringify({
           name: document.getElementById('master-name').value,
-          phone: document.getElementById('master-phone').value
+          phone: document.getElementById('master-phone').value,
+          prof: currentProfId
         }));
       } catch (e) {}
     }
 
     function computeTotalsSummary() {
+      const prof = getActiveProf();
       const coeffObj = getComplexityMultiplier();
       const discountPct = Math.max(0, Math.min(50, parseFloat(document.getElementById('discount-input').value) || 0));
       const splitStages = document.getElementById('split-stages-toggle').checked;
@@ -997,7 +1186,7 @@
       let stage1_sum = 0, stage2_sum = 0;
 
       currentEstimateItems.forEach(entry => {
-        const cat = ELECTRICAL_CATALOG.find(c => c.id === entry.id);
+        const cat = prof.works.find(c => c.id === entry.id);
         if (!cat) return;
         const unitPrice = Math.round(cat.price * coeffObj.mult);
         const lineSum = unitPrice * entry.qty;
@@ -1033,11 +1222,15 @@
 
     function sendUpdatedEstimateToBot() {
       saveCurrentEstimateToHistory(false);
+      const prof = getActiveProf();
       const s = computeTotalsSummary();
       const payloadToBot = {
         action: "update_estimate",
+        prof: currentProfId,
+        prof_title: prof.title,
+        prof_gost: prof.gost,
         is_dop: (docMode === 'dop'),
-        show_panel_strip: document.getElementById('panel-strip-toggle').checked,
+        show_panel_strip: prof.hasPanelStrip && document.getElementById('panel-strip-toggle').checked,
         show_prepay: s.show_prepay,
         prepay_pct: s.prepay_pct,
         object: document.getElementById('client-object').value || 'Объект заказчика',
@@ -1057,13 +1250,12 @@
         prepay: s.prepay
       };
 
-      // Гарантируем укладку JSON в жёсткий лимит Telegram sendData (4096 байт)
       let jsonPayload = JSON.stringify(payloadToBot);
       if (new Blob([jsonPayload]).size > 3900) {
         payloadToBot.rooms = [];
-        payloadToBot.stage1_rows = payloadToBot.stage1_rows.map(r => ({ ...r, name: r.name.slice(0, 38) }));
-        payloadToBot.stage2_rows = payloadToBot.stage2_rows.map(r => ({ ...r, name: r.name.slice(0, 38) }));
-        payloadToBot.materials = payloadToBot.materials.map(m => ({ ...m, name: m.name.slice(0, 38) }));
+        payloadToBot.stage1_rows = payloadToBot.stage1_rows.map(r => ({ ...r, name: r.name.slice(0, 36) }));
+        payloadToBot.stage2_rows = payloadToBot.stage2_rows.map(r => ({ ...r, name: r.name.slice(0, 36) }));
+        payloadToBot.materials = payloadToBot.materials.map(m => ({ ...m, name: m.name.slice(0, 36) }));
         jsonPayload = JSON.stringify(payloadToBot);
       }
 
@@ -1075,7 +1267,7 @@
         }
       } catch (e) {}
 
-      showToast('Смета сохранена в «Мои сметы». Для выгрузки PDF откройте смету кнопкой «✏️ Редактировать эту смету» в чате бота.');
+      showToast('Смета сохранена в «Мои сметы». Для выгрузки PDF откройте смету кнопкой редактирования в чате бота.');
     }
 
     function switchTab(tabName) {
@@ -1093,10 +1285,13 @@
       if (tabName === 'history') renderHistoryList();
     }
 
-    function onDocModeSelect() {
-      docMode = document.getElementById('doc-mode-select').value;
+    function onDocModeSelect() { docMode = document.getElementById('doc-mode-select').value; renderEstimate(); }
+    function togglePrepayUI() {
+      const on = document.getElementById('prepay-toggle').checked;
+      document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !on);
       renderEstimate();
     }
+    function syncPrepayPct(val) { document.getElementById('lbl-prepay-pct').textContent = val + '%'; renderEstimate(); }
 
     function toggleCoefficient(key) {
       activeCoefficients[key] = !activeCoefficients[key];
@@ -1108,23 +1303,11 @@
     }
 
     function getComplexityMultiplier() {
-      let mult = 1.0;
-      const labels = [];
+      let mult = 1.0; const labels = [];
       if (activeCoefficients.furnished) { mult += 0.25; labels.push("Жилая +25%"); }
       if (activeCoefficients.high) { mult += 0.15; labels.push(">3.2м +15%"); }
       if (activeCoefficients.urgent) { mult += 0.20; labels.push("Срочно +20%"); }
       return { mult: Math.round(mult * 100) / 100, labels };
-    }
-
-    function togglePrepayUI() {
-      const on = document.getElementById('prepay-toggle').checked;
-      document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !on);
-      renderEstimate();
-    }
-
-    function syncPrepayPct(val) {
-      document.getElementById('lbl-prepay-pct').textContent = val + '%';
-      renderEstimate();
     }
 
     function updateMarginSlider() {
@@ -1136,26 +1319,23 @@
 
     function addCustomMaterialManual() {
       const nameInput = document.getElementById('custom-mat-name');
-      const unitInput = document.getElementById('custom-mat-unit');
-      const qtyInput = document.getElementById('custom-mat-qty');
-      const priceInput = document.getElementById('custom-mat-price');
-      const name = nameInput.value.trim() || "Дополнительный расходник";
       currentMaterialsList.push({
-        name: name,
-        unit: unitInput.value.trim() || "шт.",
-        qty: Math.max(1, parseFloat(qtyInput.value) || 1),
-        price: Math.max(0, parseFloat(priceInput.value) || 0),
+        name: nameInput.value.trim() || "Дополнительный расходник",
+        unit: document.getElementById('custom-mat-unit').value.trim() || "шт.",
+        qty: Math.max(1, parseFloat(document.getElementById('custom-mat-qty').value) || 1),
+        price: Math.max(0, parseFloat(document.getElementById('custom-mat-price').value) || 0),
         isCustom: true
       });
       nameInput.value = '';
       renderEstimate();
-      showToast('Расходник добавлен в смету');
+      showToast('Расходник добавлен');
     }
 
     function stepWorkQty(idx, delta) {
+      const prof = getActiveProf();
       if (!currentEstimateItems[idx]) return;
-      const item = ELECTRICAL_CATALOG.find(c => c.id === currentEstimateItems[idx].id);
-      const step = (item && item.unit === 'м.п.' && Math.abs(delta) === 1) ? (delta * 5) : delta;
+      const item = prof.works.find(c => c.id === currentEstimateItems[idx].id);
+      const step = (item && (item.unit === 'м.п.' || item.unit === 'м²') && Math.abs(delta) === 1) ? (delta * 2) : delta;
       currentEstimateItems[idx].qty = Math.max(1, currentEstimateItems[idx].qty + step);
       recalcAutoMaterialsKeepCustom();
       renderEstimate();
@@ -1176,41 +1356,25 @@
       renderEstimate();
     }
 
-    function removeMaterialRow(idx) {
-      currentMaterialsList.splice(idx, 1);
-      renderEstimate();
-    }
+    function removeMaterialRow(idx) { currentMaterialsList.splice(idx, 1); renderEstimate(); }
 
     function updateItemQty(idx, val) {
-      const n = parseInt(val, 10);
-      if (n > 0 && currentEstimateItems[idx]) {
-        currentEstimateItems[idx].qty = n;
-        recalcAutoMaterialsKeepCustom();
-        renderEstimate();
-      }
+      const n = parseFloat(val);
+      if (n > 0 && currentEstimateItems[idx]) { currentEstimateItems[idx].qty = n; recalcAutoMaterialsKeepCustom(); renderEstimate(); }
     }
 
     function updateWorkPriceInline(workId, val) {
       const p = parseInt(val, 10);
-      const item = ELECTRICAL_CATALOG.find(c => c.id === workId);
-      if (p > 0 && item) {
-        item.price = p;
-        renderCatalogTable();
-        populateWorkDropdown();
-        renderEstimate();
-      }
+      const item = getActiveProf().works.find(c => c.id === workId);
+      if (p > 0 && item) { item.price = p; renderCatalogTable(); populateWorkDropdown(); renderEstimate(); }
     }
 
-    function removeEstimateItem(idx) {
-      currentEstimateItems.splice(idx, 1);
-      recalcAutoMaterialsKeepCustom();
-      renderEstimate();
-    }
+    function removeEstimateItem(idx) { currentEstimateItems.splice(idx, 1); recalcAutoMaterialsKeepCustom(); renderEstimate(); }
 
     function populateWorkDropdown() {
       const sel = document.getElementById('add-work-select');
       sel.innerHTML = '';
-      ELECTRICAL_CATALOG.forEach(item => {
+      getActiveProf().works.forEach(item => {
         const opt = document.createElement('option');
         opt.value = item.id;
         opt.textContent = `[Этап ${item.stage}] ${item.name} (${item.price} ₽/${item.unit})`;
@@ -1222,30 +1386,29 @@
       const id = document.getElementById('add-work-select').value;
       const existing = currentEstimateItems.find(i => i.id === id);
       if (existing) existing.qty += 1;
-      else currentEstimateItems.push({ id: id, qty: 1 });
+      else currentEstimateItems.push({ id, qty: 1 });
       recalcAutoMaterialsKeepCustom();
       renderEstimate();
       showToast('Работа добавлена в смету');
     }
 
     function renderPanelLabelStrip() {
+      const prof = getActiveProf();
       const section = document.getElementById('doc-panel-strip-section');
       const grid = document.getElementById('doc-panel-strip-grid');
-      if (!document.getElementById('panel-strip-toggle').checked || docMode === 'dop') {
+      if (!prof.hasPanelStrip || !document.getElementById('panel-strip-toggle').checked || docMode === 'dop') {
         section.classList.add('hidden');
         return;
       }
       section.classList.remove('hidden');
-      const hasCooking = currentEstimateItems.some(i => i.id === 'el_20');
-      const hasBoiler = currentEstimateItems.some(i => i.id === 'el_22');
       const modules = [
         { num: "QF1", title: "ВВОДНОЙ АВ", amp: "C50 2P", bg: "bg-rose-600 text-white" },
         { num: "KV1", title: "РЕЛЕ НАПРЯЖ.", amp: "63А V/A", bg: "bg-amber-500 text-slate-950" },
         { num: "QFD1", title: "УЗО ГРУППЫ 1", amp: "40А 30mA", bg: "bg-sky-600 text-white" },
-        { num: "QF2", title: hasCooking ? "ВАРОЧНАЯ ПАН." : "СИЛОВАЯ КУХНЯ", amp: "C32", bg: "bg-slate-800 text-white" },
+        { num: "QF2", title: "ВАРОЧНАЯ ПАН.", amp: "C32", bg: "bg-slate-800 text-white" },
         { num: "QF3", title: "ДУХОВКА / ПММ", amp: "C16", bg: "bg-slate-700 text-white" },
         { num: "QF4", title: "РОЗЕТКИ КУХНЯ", amp: "C16", bg: "bg-slate-700 text-white" },
-        { num: "QF5", title: hasBoiler ? "БОЙЛЕР / СТИР." : "САНУЗЕЛ МОКР.", amp: "C16 АВДТ", bg: "bg-emerald-700 text-white" },
+        { num: "QF5", title: "САНУЗЕЛ МОКР.", amp: "C16 АВДТ", bg: "bg-emerald-700 text-white" },
         { num: "QF6", title: "СВЕТ ОБЩИЙ", amp: "C10", bg: "bg-amber-600 text-white" }
       ];
       grid.innerHTML = modules.map(m => `
@@ -1258,6 +1421,7 @@
     }
 
     function renderEstimate() {
+      const prof = getActiveProf();
       const worksTbody = document.getElementById('doc-works-tbody');
       const materialsTbody = document.getElementById('doc-materials-tbody');
       const materialsSection = document.getElementById('doc-materials-section');
@@ -1267,7 +1431,7 @@
       const s = computeTotalsSummary();
       const coeffObj = getComplexityMultiplier();
 
-      document.getElementById('doc-badge-top').textContent = docMode === 'dop' ? "⚡ Акт дополнительных работ" : "⚡ Смета на электромонтажные работы";
+      document.getElementById('doc-badge-top').textContent = docMode === 'dop' ? `${prof.icon} Акт дополнительных работ` : `${prof.icon} ${prof.title}`;
       document.getElementById('doc-title').textContent = docMode === 'dop' ? "Дополнительное соглашение № ДС-01" : "Сметный расчёт";
       document.getElementById('doc-object').textContent = "Объект: " + (document.getElementById('client-object').value || 'Объект заказчика');
       document.getElementById('doc-master').textContent = document.getElementById('master-name').value;
@@ -1285,18 +1449,14 @@
 
       document.getElementById('active-coeff-label').textContent = `×${coeffObj.mult.toFixed(2)}`;
       const docCoeffBanner = document.getElementById('doc-coeff-banner');
-      if (coeffObj.mult > 1.0) {
-        docCoeffBanner.textContent = `Коэфф.: ×${coeffObj.mult.toFixed(2)} (${coeffObj.labels.join(', ')})`;
-        docCoeffBanner.classList.remove('hidden');
-      } else {
-        docCoeffBanner.classList.add('hidden');
-      }
+      docCoeffBanner.classList.toggle('hidden', coeffObj.mult <= 1.0);
+      if (coeffObj.mult > 1.0) docCoeffBanner.textContent = `Коэфф.: ×${coeffObj.mult.toFixed(2)} (${coeffObj.labels.join(', ')})`;
 
       document.getElementById('empty-works-notice').classList.toggle('hidden', currentEstimateItems.length > 0);
       worksTbody.innerHTML = '';
 
       const indexedItems = currentEstimateItems.map((entry, idx) => {
-        const cat = ELECTRICAL_CATALOG.find(c => c.id === entry.id);
+        const cat = prof.works.find(c => c.id === entry.id);
         return { entry, idx, cat, stage: cat ? cat.stage : 1 };
       });
       if (splitStages) indexedItems.sort((a, b) => a.stage - b.stage);
@@ -1308,7 +1468,7 @@
           currentStageRendered = stage;
           const stageTr = document.createElement('tr');
           stageTr.className = "bg-slate-100/90";
-          stageTr.innerHTML = `<td colspan="6" class="py-1.5 px-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-800">${stage === 1 ? '🔹 Этап 1. Черновой электромонтаж' : '🔸 Этап 2. Чистовая установка'}</td>`;
+          stageTr.innerHTML = `<td colspan="6" class="py-1.5 px-2 text-[11px] font-extrabold uppercase tracking-wider text-slate-800">${stage === 1 ? '🔹 Этап 1. Основные / Черновые работы' : '🔸 Этап 2. Финишные / Дополнительные работы'}</td>`;
           worksTbody.appendChild(stageTr);
         }
 
@@ -1337,13 +1497,9 @@
       });
 
       const stagesSummary = document.getElementById('doc-stages-summary');
-      if (splitStages && docMode === 'main') {
-        stagesSummary.classList.remove('hidden');
-        document.getElementById('stage1-sum-val').textContent = formatRub(s.stage1_sum) + ' ₽';
-        document.getElementById('stage2-sum-val').textContent = formatRub(s.stage2_sum) + ' ₽';
-      } else {
-        stagesSummary.classList.add('hidden');
-      }
+      stagesSummary.classList.toggle('hidden', !(splitStages && docMode === 'main'));
+      document.getElementById('stage1-sum-val').textContent = formatRub(s.stage1_sum) + ' ₽';
+      document.getElementById('stage2-sum-val').textContent = formatRub(s.stage2_sum) + ' ₽';
 
       materialsTbody.innerHTML = '';
       const thPrice = document.getElementById('th-mat-price');
@@ -1402,7 +1558,7 @@
     function renderMaterialsCatalogTable() {
       const tbody = document.getElementById('materials-catalog-tbody');
       tbody.innerHTML = '';
-      MATERIALS_CATALOG.forEach((mat, idx) => {
+      getActiveProf().materials.forEach((mat, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="py-2.5 pr-3 font-medium text-white">${mat.name}</td>
@@ -1418,32 +1574,17 @@
 
     function updateBaseMaterialPrice(idx, val) {
       const p = parseFloat(val);
-      if (p >= 0 && MATERIALS_CATALOG[idx]) {
-        MATERIALS_CATALOG[idx].price = p;
-        recalcAutoMaterialsKeepCustom();
-        renderEstimate();
-        showToast('Цена материала обновлена');
-      }
-    }
-
-    function syncSupplierFeed() {
-      const feedPrices = { mat_pod: 52, mat_vvg25: 124, mat_vvg15: 79, mat_gofra: 36, mat_utp: 48, mat_box: 410, mat_auto: 1190 };
-      MATERIALS_CATALOG.forEach(m => { if (feedPrices[m.id] !== undefined) m.price = feedPrices[m.id]; });
-      renderMaterialsCatalogTable();
-      recalcAutoMaterialsKeepCustom();
-      renderEstimate();
-      showToast('Цены обновлены по прайсу ЭТМ / Кабель.РФ');
+      const mats = getActiveProf().materials;
+      if (p >= 0 && mats[idx]) { mats[idx].price = p; recalcAutoMaterialsKeepCustom(); renderEstimate(); showToast('Цена материала обновлена'); }
     }
 
     function addNewCatalogMaterial() {
       const nameEl = document.getElementById('cat-new-mat-name');
-      const unitEl = document.getElementById('cat-new-mat-unit');
-      const priceEl = document.getElementById('cat-new-mat-price');
       const name = nameEl.value.trim();
-      if (!name) { showToast('Введите наименование материала'); return; }
-      const unit = unitEl.value.trim() || 'шт.';
-      const price = Math.max(0, parseFloat(priceEl.value) || 0);
-      MATERIALS_CATALOG.push({ id: 'mat_user_' + (MATERIALS_CATALOG.length + 1), name, unit, price, rule: "Личная позиция мастера", isCopper: false });
+      if (!name) { showToast('Введите наименование'); return; }
+      const unit = document.getElementById('cat-new-mat-unit').value.trim() || 'шт.';
+      const price = Math.max(0, parseFloat(document.getElementById('cat-new-mat-price').value) || 0);
+      getActiveProf().materials.push({ id: 'mat_u_' + Date.now(), name, unit, price, rule: "Личная позиция мастера", volatile: false });
       currentMaterialsList.push({ name, unit, qty: 1, price, isCustom: true });
       nameEl.value = '';
       renderMaterialsCatalogTable();
@@ -1454,11 +1595,11 @@
     function renderCatalogTable() {
       const tbody = document.getElementById('catalog-tbody');
       tbody.innerHTML = '';
-      ELECTRICAL_CATALOG.forEach((item, idx) => {
+      getActiveProf().works.forEach((item, idx) => {
         const tr = document.createElement('tr');
         const stageBadge = item.stage === 1
-          ? '<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-xs font-semibold">Этап 1: Черновой</span>'
-          : '<span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 text-xs font-semibold">Этап 2: Чистовой</span>';
+          ? '<span class="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-xs font-semibold">Этап 1</span>'
+          : '<span class="px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 text-xs font-semibold">Этап 2</span>';
         tr.innerHTML = `
           <td class="py-2.5 pr-3">${stageBadge}</td>
           <td class="py-2.5 px-3 text-xs text-slate-400">${item.cat}</td>
@@ -1474,170 +1615,57 @@
 
     function updateCatalogPrice(idx, val) {
       const p = parseInt(val, 10);
-      if (p > 0 && ELECTRICAL_CATALOG[idx]) {
-        ELECTRICAL_CATALOG[idx].price = p;
-        populateWorkDropdown();
-        renderEstimate();
-        showToast('Цена работы обновлена');
-      }
+      const works = getActiveProf().works;
+      if (p > 0 && works[idx]) { works[idx].price = p; populateWorkDropdown(); renderEstimate(); showToast('Цена обновлена'); }
     }
 
     function applyRegionalMultiplier(mult) {
-      const basePrices = [650, 450, 350, 550, 350, 250, 160, 110, 120, 1200, 6500, 9500, 14500, 4500, 350, 300, 450, 1500, 650, 1800, 2800, 1400, 1800, 12000, 600, 4500];
-      ELECTRICAL_CATALOG.forEach((item, i) => { item.price = Math.round((basePrices[i] * mult) / 10) * 10; });
+      getActiveProf().works.forEach(item => { item.price = Math.round((item.price * mult) / 10) * 10; });
       renderCatalogTable();
       populateWorkDropdown();
       renderEstimate();
-      showToast(mult > 1 ? 'Применены расценки Москва / СПб (×1.35)' : 'Применены базовые расценки регионов РФ');
+      showToast(mult > 1 ? 'Применён коэффициент ×1.35' : 'Базовые расценки');
     }
 
     let previewingHistoryId = null;
-
     function openDocPreviewModal(id) {
       const rec = savedHistory.find(h => h.id === id);
       if (!rec) return;
       previewingHistoryId = id;
-
-      const s = rec.summarySnapshot || {
-        stage1_rows: [], stage2_rows: [], stage1_sum: 0, stage2_sum: 0,
-        works_total: rec.grandTotal || 0, discount_pct: rec.discountPct || 0,
-        discount_rub: 0, materials_out: rec.materials || [], materials_total: 0,
-        grand_total: rec.grandTotal || 0, prepay: 0
-      };
-
-      // Если summarySnapshot не был сохранён в старой записи — пересчитаем на лету
-      let stage1Rows = s.stage1_rows || [];
-      let stage2Rows = s.stage2_rows || [];
-      if (stage1Rows.length === 0 && stage2Rows.length === 0 && Array.isArray(rec.works)) {
-        rec.works.forEach(w => {
-          const cat = ELECTRICAL_CATALOG.find(c => c.id === w.id);
-          if (!cat) return;
-          const row = { name: cat.name, unit: cat.unit, qty: w.qty, price: cat.price, sum: cat.price * w.qty };
-          if (cat.stage === 1) stage1Rows.push(row);
-          else stage2Rows.push(row);
-        });
-      }
-
-      const showStrip = (rec.showPanelStrip !== undefined) ? rec.showPanelStrip : true;
-      const showRooms = Array.isArray(rec.rooms) && rec.rooms.length > 0 && rec.docMode !== 'dop';
-      const mats = (s.materials_out && s.materials_out.length) ? s.materials_out : (rec.materials || []);
-      const isSpecOnly = (rec.matDisplayMode === 'spec_only');
-
-      const renderRows = (rows) => rows.map(r => `
-        <tr class="border-b border-slate-200">
-          <td class="py-1.5 pr-2 font-medium text-slate-900">${r.name}</td>
-          <td class="py-1.5 px-1 text-center text-slate-500">${r.unit || 'шт.'}</td>
-          <td class="py-1.5 px-2 text-center mono">${r.qty}</td>
-          <td class="py-1.5 px-2 text-right mono">${formatRub(r.price)}</td>
-          <td class="py-1.5 pl-2 text-right mono font-semibold">${formatRub(r.sum !== undefined ? r.sum : (r.qty * r.price))}</td>
-        </tr>
-      `).join('');
-
-      const roomsHtml = showRooms ? `
-        <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
-          <div class="text-[11px] font-bold uppercase text-slate-700 mb-1">Разбивка точек по помещениям:</div>
-          <ul class="list-disc pl-4 text-xs text-slate-700 space-y-0.5">${rec.rooms.map(r => `<li>${r}</li>`).join('')}</ul>
-        </div>` : '';
-
-      const stripHtml = (showStrip && rec.docMode !== 'dop') ? `
-        <div class="mt-5 pt-4 border-t border-dashed border-slate-400">
-          <div class="text-[11px] font-bold uppercase text-slate-700 mb-2">3. Маркировка модулей электрощита (DIN 17.5 мм):</div>
-          <div class="grid grid-cols-4 sm:grid-cols-8 border-2 border-slate-900 rounded-lg overflow-hidden text-center text-[10px]">
-            <div class="border-r border-slate-300"><div class="bg-rose-600 text-white font-bold py-0.5 text-[9px]">QF1 • C50</div><div class="py-1.5 px-1 font-extrabold">ВВОДНОЙ</div></div>
-            <div class="border-r border-slate-300"><div class="bg-amber-500 text-slate-950 font-bold py-0.5 text-[9px]">KV1 • 63А</div><div class="py-1.5 px-1 font-extrabold">РЕЛЕ НАПР.</div></div>
-            <div class="border-r border-slate-300"><div class="bg-sky-600 text-white font-bold py-0.5 text-[9px]">QFD1 • 40А</div><div class="py-1.5 px-1 font-extrabold">УЗО ГР.1</div></div>
-            <div class="border-r border-slate-300"><div class="bg-slate-800 text-white font-bold py-0.5 text-[9px]">QF2 • C32</div><div class="py-1.5 px-1 font-extrabold">ВАРОЧНАЯ</div></div>
-            <div class="border-r border-slate-300"><div class="bg-slate-700 text-white font-bold py-0.5 text-[9px]">QF3 • C16</div><div class="py-1.5 px-1 font-extrabold">ДУХОВКА</div></div>
-            <div class="border-r border-slate-300"><div class="bg-slate-700 text-white font-bold py-0.5 text-[9px]">QF4 • C16</div><div class="py-1.5 px-1 font-extrabold">КУХНЯ</div></div>
-            <div class="border-r border-slate-300"><div class="bg-emerald-700 text-white font-bold py-0.5 text-[9px]">QF5 • АВДТ</div><div class="py-1.5 px-1 font-extrabold">САНУЗЕЛ</div></div>
-            <div><div class="bg-amber-600 text-white font-bold py-0.5 text-[9px]">QF6 • C10</div><div class="py-1.5 px-1 font-extrabold">СВЕТ</div></div>
-          </div>
-        </div>` : '';
-
-      const html = `
-        <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b-2 border-slate-900">
+      const s = rec.summarySnapshot || { stage1_rows: [], stage2_rows: [], stage1_sum: 0, stage2_sum: 0, works_total: rec.grandTotal, discount_pct: 0, discount_rub: 0, materials_out: rec.materials || [], materials_total: 0, grand_total: rec.grandTotal, prepay: 0 };
+      const renderRows = (rows) => rows.map(r => `<tr class="border-b border-slate-200"><td class="py-1.5 pr-2 font-medium">${r.name}</td><td class="py-1.5 px-1 text-center text-slate-500">${r.unit}</td><td class="py-1.5 px-2 text-center mono">${r.qty}</td><td class="py-1.5 px-2 text-right mono">${formatRub(r.price)}</td><td class="py-1.5 pl-2 text-right mono font-semibold">${formatRub(r.sum)}</td></tr>`).join('');
+      const mats = s.materials_out || [];
+      document.getElementById('doc-preview-content').innerHTML = `
+        <div class="flex flex-wrap justify-between gap-4 pb-4 border-b-2 border-slate-900">
           <div>
-            <div class="inline-block px-2 py-0.5 rounded bg-slate-900 text-amber-400 text-[10px] font-bold uppercase mb-1">
-              ${rec.docMode === 'dop' ? 'Акт дополнительных работ' : 'Сметный расчёт на электромонтаж'}
-            </div>
-            <h3 class="text-xl font-extrabold text-slate-900">${rec.object}</h3>
-            <div class="text-xs text-slate-500 mt-0.5">Дата сохранения: ${rec.date}</div>
+            <div class="inline-block px-2 py-0.5 rounded bg-slate-900 text-amber-400 text-[10px] font-bold uppercase mb-1">${rec.profIcon || '⚡'} ${rec.profName || 'Мастер'} • ${rec.docMode === 'dop' ? 'Акт доп. работ' : 'Сметный расчёт'}</div>
+            <h3 class="text-xl font-extrabold">${rec.object}</h3>
+            <div class="text-xs text-slate-500">Дата: ${rec.date}</div>
           </div>
-          <div class="text-left sm:text-right text-xs text-slate-700">
-            <div class="font-bold text-sm text-slate-900">${rec.masterName || document.getElementById('master-name').value}</div>
-            <div>Тел. / СБП: ${rec.masterPhone || document.getElementById('master-phone').value}</div>
-            <div class="text-emerald-700 font-semibold">Гарантия: 5 лет (СП 256.1325800)</div>
+          <div class="text-right text-xs">
+            <div class="font-bold text-sm">${rec.masterName || ''}</div>
+            <div>СБП: ${rec.masterPhone || ''}</div>
           </div>
         </div>
-        ${roomsHtml}
-        <div class="mt-5">
-          <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">1. Ведомость электромонтажных работ</h4>
+        <div class="mt-4">
+          <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">1. Ведомость работ</h4>
           <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b-2 border-slate-900 text-[10.5px] uppercase text-slate-600">
-                <th class="py-1.5 pr-2">Наименование работ</th>
-                <th class="py-1.5 px-1 text-center">Ед.</th>
-                <th class="py-1.5 px-2 text-center">Кол-во</th>
-                <th class="py-1.5 px-2 text-right">Цена (₽)</th>
-                <th class="py-1.5 pl-2 text-right">Сумма (₽)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${stage1Rows.length ? '<tr class="bg-slate-100"><td colspan="5" class="py-1 px-2 text-[10.5px] font-bold uppercase">Этап 1. Черновой электромонтаж</td></tr>' + renderRows(stage1Rows) : ''}
-              ${stage2Rows.length ? '<tr class="bg-slate-100"><td colspan="5" class="py-1 px-2 text-[10.5px] font-bold uppercase">Этап 2. Чистовая установка</td></tr>' + renderRows(stage2Rows) : ''}
-            </tbody>
+            <thead><tr class="border-b-2 border-slate-900 text-[10px] uppercase"><th class="py-1">Работа</th><th class="text-center">Ед.</th><th class="text-center">Кол-во</th><th class="text-right">Цена</th><th class="text-right">Сумма</th></tr></thead>
+            <tbody>${renderRows(s.stage1_rows || [])}${renderRows(s.stage2_rows || [])}</tbody>
           </table>
-          <div class="mt-2 text-xs text-slate-700">
-            • Этап 1 (Черновой): <strong>${formatRub(s.stage1_sum)} ₽</strong> &nbsp;|&nbsp; Этап 2 (Чистовой): <strong>${formatRub(s.stage2_sum)} ₽</strong>
-          </div>
         </div>
-        ${mats.length ? `
-        <div class="mt-5 pt-4 border-t border-slate-300">
-          <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Расходные материалы и оснастка</h4>
-          <table class="w-full text-left border-collapse text-xs">
-            <thead>
-              <tr class="border-b border-slate-400 text-[10.5px] uppercase text-slate-600">
-                <th class="py-1.5 pr-2">Материал</th>
-                <th class="py-1.5 px-1 text-center">Ед.</th>
-                <th class="py-1.5 px-2 text-center">Кол-во</th>
-                ${isSpecOnly ? '' : '<th class="py-1.5 px-2 text-right">Цена (₽)</th><th class="py-1.5 pl-2 text-right">Сумма (₽)</th>'}
-              </tr>
-            </thead>
-            <tbody>
-              ${mats.map(m => `
-                <tr class="border-b border-slate-200">
-                  <td class="py-1.5 pr-2">${m.name}</td>
-                  <td class="py-1.5 px-1 text-center text-slate-500">${m.unit || 'шт.'}</td>
-                  <td class="py-1.5 px-2 text-center mono">${m.qty}</td>
-                  ${isSpecOnly ? '' : `<td class="py-1.5 px-2 text-right mono">${formatRub(m.price)}</td><td class="py-1.5 pl-2 text-right mono font-medium">${formatRub(Math.round(m.qty * m.price))}</td>`}
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>` : ''}
-        ${stripHtml}
-        <div class="mt-5 pt-4 border-t-2 border-slate-900 bg-slate-100 rounded-xl p-4 text-right space-y-1">
-          <div class="text-xs text-slate-600">Итого работы: <strong class="mono text-slate-900">${formatRub(s.works_total)} ₽</strong></div>
-          <div class="text-xs text-emerald-700">Скидка (${s.discount_pct || 0}%): <strong class="mono">−${formatRub(s.discount_rub)} ₽</strong></div>
-          ${isSpecOnly ? '' : `<div class="text-xs text-slate-600">Материалы и оснастка: <strong class="mono text-slate-900">${formatRub(s.materials_total)} ₽</strong></div>`}
-          <div class="pt-2 border-t border-slate-300 text-lg font-black text-slate-900 mono">ИТОГО ПО СМЕТЕ: ${formatRub(s.grand_total)} ₽</div>
-          ${(rec.showPrepay !== false) ? `<div class="text-xs text-slate-600">Аванс (${rec.prepayPct || 30}% + материалы, СБП): <strong class="mono text-slate-900">${formatRub(s.prepay)} ₽</strong></div>` : ""}
+        ${mats.length ? `<div class="mt-4 pt-3 border-t border-slate-300"><h4 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Материалы</h4><table class="w-full text-left border-collapse text-xs"><tbody>${renderRows(mats)}</tbody></table></div>` : ''}
+        <div class="mt-4 bg-slate-100 rounded-xl p-4 text-right space-y-1">
+          <div class="text-xs">Работы: <strong class="mono">${formatRub(s.works_total)} ₽</strong></div>
+          <div class="text-xs">Материалы: <strong class="mono">${formatRub(s.materials_total)} ₽</strong></div>
+          <div class="text-lg font-black mono pt-1 border-t border-slate-300">ИТОГО: ${formatRub(s.grand_total)} ₽</div>
+          ${rec.showPrepay !== false ? `<div class="text-xs">Аванс (${rec.prepayPct || 30}% + материалы): <strong class="mono">${formatRub(s.prepay)} ₽</strong></div>` : ''}
         </div>
       `;
-
-      document.getElementById('doc-preview-content').innerHTML = html;
       document.getElementById('doc-preview-modal').classList.remove('hidden');
     }
-
-    function closeDocPreviewModal() {
-      document.getElementById('doc-preview-modal').classList.add('hidden');
-    }
-
-    function editFromPreviewModal() {
-      const id = previewingHistoryId;
-      closeDocPreviewModal();
-      if (id) openHistoryEstimate(id);
-    }
+    function closeDocPreviewModal() { document.getElementById('doc-preview-modal').classList.add('hidden'); }
+    function editFromPreviewModal() { const id = previewingHistoryId; closeDocPreviewModal(); if (id) openHistoryEstimate(id); }
 
     function openUnlockModal() { document.getElementById('unlock-modal').classList.remove('hidden'); }
     function closeUnlockModal() { document.getElementById('unlock-modal').classList.add('hidden'); }
@@ -1647,7 +1675,6 @@
         if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
           window.Telegram.WebApp.sendData(JSON.stringify({ action: "pay_sub_599" }));
           closeUnlockModal();
-          showToast('Перевожу на оплату подписки 599 ₽ через ЮKassa...');
           return;
         }
       } catch (e) {}
@@ -1664,13 +1691,10 @@
         }
       } catch (e) {}
       closeUnlockModal();
-      showToast('Счёт на 150 ₽ (ЮKassa / СБП) доступен внутри Telegram-бота.');
+      showToast('Оплата 150 ₽ (ЮKassa / СБП) открывается при входе из Telegram-бота.');
     }
 
-    function formatRub(num) {
-      return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
-    }
-
+    function formatRub(num) { return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " "); }
     function showToast(msg) {
       const box = document.getElementById('toast-box');
       document.getElementById('toast-text').textContent = msg;
