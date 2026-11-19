@@ -49,6 +49,9 @@
         <button id="tab-history" onclick="switchTab('history')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white">
           🗂️ Мои сметы (<span id="history-count-badge">0</span>)
         </button>
+        <button id="tab-subscription" onclick="switchTab('subscription')" class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-amber-300 hover:text-amber-200">
+          ⭐ Подписка
+        </button>
       </nav>
     </div>
   </header>
@@ -482,6 +485,64 @@
       </div>
     </section>
 
+
+    <!-- ==================== TAB 4: ПОДПИСКА (ЮKASSA / СБП) ==================== -->
+    <section id="view-subscription" class="hidden max-w-4xl mx-auto space-y-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl">
+        <div class="text-center max-w-xl mx-auto mb-8">
+          <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30">Тарифы ЭлектроСмета AI</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-3">Чистые PDF-сметы без ограничений</h2>
+          <p class="text-xs sm:text-sm text-slate-400 mt-2">Оплата принимается безопасно через <strong>ЮKassa (СБП и банковские карты РФ)</strong> прямо внутри Telegram с автоматической активацией за 3 секунды.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- CARD 1: MONTHLY PRO SUBSCRIPTION 599 RUB -->
+          <div class="relative p-6 rounded-2xl bg-gradient-to-b from-amber-500/15 to-slate-950 border-2 border-amber-500 flex flex-col justify-between shadow-2xl">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Выбор прорабов и мастеров</span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">Выгоднее в 10 раз</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-white">Месячная PRO-подписка</h3>
+              <div class="mt-3 flex items-baseline gap-1.5">
+                <span class="mono text-4xl font-black text-amber-400">599 ₽</span>
+                <span class="text-sm text-slate-400">/ 30 дней</span>
+              </div>
+              <ul class="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-200">
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span><strong>Безлимитное количество</strong> чистых PDF-смет без водяного знака</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Длинные голосовые замеры (до 10+ минут) для крупных объектов и прорабов</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Распознавание любых <strong>нестандартных работ и своих материалов</strong> голосом</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Акты доп. работ (Допы), маркировка щита DIN 17.5 мм и архив смет</span></li>
+              </ul>
+            </div>
+            <button onclick="requestYooKassaSubscription()" class="mt-6 w-full py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition">
+              ⭐ Оформить подписку — 599 ₽ (ЮKassa / СБП)
+            </button>
+          </div>
+
+          <!-- CARD 2: SINGLE PDF UNLOCK 150 RUB -->
+          <div class="p-6 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col justify-between">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Разовый платёж</span>
+              <h3 class="text-xl font-extrabold text-white mt-2">Снять водяной знак с 1 сметы</h3>
+              <div class="mt-3 flex items-baseline gap-1.5">
+                <span class="mono text-4xl font-black text-white">150 ₽</span>
+                <span class="text-sm text-slate-400">/ за 1 документ</span>
+              </div>
+              <ul class="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-300">
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Мгновенный перевыпуск текущей сметы без демо-штампа</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Все ваши правки работ, материалов, аванса и реквизитов СБП</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Без привязки карты и автосписаний</span></li>
+              </ul>
+            </div>
+            <button onclick="requestYooKassaPayment()" class="mt-6 w-full py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-sm transition">
+              🔓 Оплатить 1 смету — 150 ₽ (ЮKassa / СБП)
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <!-- FULLSCREEN DOCUMENT PREVIEW MODAL (PDF-VIEW INSIDE APP) -->
@@ -514,13 +575,20 @@
       <p class="text-xs text-slate-300 mt-3 leading-relaxed">
         Оплатите снятие демо-штампа через <strong>СБП или банковскую карту РФ (ЮKassa)</strong> — бот сразу пришлёт чистый PDF-документ в чат.
       </p>
-      <div class="my-4">
-        <button onclick="requestYooKassaPayment()" class="w-full text-left p-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500 flex items-center justify-between transition">
+      <div class="my-4 space-y-2.5">
+        <button onclick="requestYooKassaSubscription()" class="w-full text-left p-4 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border-2 border-amber-500 flex items-center justify-between transition">
           <div>
-            <div class="text-sm font-bold text-amber-300">Снять водяной знак с PDF</div>
-            <div class="text-xs text-slate-300">Оплата по СБП / Картой РФ (ЮKassa)</div>
+            <div class="text-sm font-bold text-amber-300">⭐ Месячная PRO-подписка (Безлимит)</div>
+            <div class="text-xs text-slate-300">30 дней чистых PDF без ограничений • ЮKassa / СБП</div>
           </div>
-          <span class="mono font-black text-amber-400 text-lg">150 ₽</span>
+          <span class="mono font-black text-amber-400 text-lg">599 ₽</span>
+        </button>
+        <button onclick="requestYooKassaPayment()" class="w-full text-left p-3.5 rounded-xl bg-slate-800 hover:bg-slate-750 border border-slate-700 flex items-center justify-between transition">
+          <div>
+            <div class="text-sm font-bold text-white">Разово снять знак с 1 сметы</div>
+            <div class="text-xs text-slate-400">Оплата по СБП / Картой РФ (ЮKassa)</div>
+          </div>
+          <span class="mono font-bold text-white text-base">150 ₽</span>
         </button>
       </div>
     </div>
@@ -641,11 +709,22 @@
         currentRoomsList = Array.isArray(payload.rooms) ? payload.rooms : [];
         currentEstimateItems = [];
         if (Array.isArray(payload.works)) {
-          payload.works.forEach(w => {
+          payload.works.forEach((w, i) => {
             const found = ELECTRICAL_CATALOG.find(c => c.id === w.id || c.name === w.name);
             if (found) {
               if (w.price) found.price = w.price;
               currentEstimateItems.push({ id: found.id, qty: w.qty || 1 });
+            } else if (w.name) {
+              const customId = 'custom_w_' + Date.now() + '_' + i;
+              ELECTRICAL_CATALOG.push({
+                id: customId,
+                stage: w.stage || 1,
+                cat: "Нестандартная работа",
+                name: w.name,
+                unit: w.unit || "шт.",
+                price: w.price || 1000
+              });
+              currentEstimateItems.push({ id: customId, qty: w.qty || 1 });
             }
           });
         }
@@ -1000,7 +1079,7 @@
     }
 
     function switchTab(tabName) {
-      ['simulator', 'catalog', 'history'].forEach(t => {
+      ['simulator', 'catalog', 'history', 'subscription'].forEach(t => {
         const view = document.getElementById('view-' + t);
         const btn = document.getElementById('tab-' + t);
         if (t === tabName) {
@@ -1562,6 +1641,19 @@
 
     function openUnlockModal() { document.getElementById('unlock-modal').classList.remove('hidden'); }
     function closeUnlockModal() { document.getElementById('unlock-modal').classList.add('hidden'); }
+
+    function requestYooKassaSubscription() {
+      try {
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
+          window.Telegram.WebApp.sendData(JSON.stringify({ action: "pay_sub_599" }));
+          closeUnlockModal();
+          showToast('Перевожу на оплату подписки 599 ₽ через ЮKassa...');
+          return;
+        }
+      } catch (e) {}
+      closeUnlockModal();
+      showToast('Оплата подписки 599 ₽ (ЮKassa / СБП) открывается при входе из Telegram-бота.');
+    }
 
     function requestYooKassaPayment() {
       try {
