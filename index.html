@@ -465,6 +465,26 @@
 
   </main>
 
+  <!-- FULLSCREEN DOCUMENT PREVIEW MODAL (PDF-VIEW INSIDE APP) -->
+  <div id="doc-preview-modal" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm overflow-y-auto p-3 sm:p-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3 sticky top-0 z-10 bg-slate-900/95 p-3 rounded-xl border border-slate-700 shadow-lg">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">📄 Просмотр готового документа</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="preview-edit-btn" onclick="editFromPreviewModal()" class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition">
+            ✏️ Редактировать
+          </button>
+          <button onclick="closeDocPreviewModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold border border-slate-600 transition">
+            ✕ Закрыть
+          </button>
+        </div>
+      </div>
+      <div id="doc-preview-content" class="bg-white text-slate-900 rounded-2xl p-5 sm:p-8 shadow-2xl border border-slate-200"></div>
+    </div>
+  </div>
+
   <!-- PAYWALL MODAL (YOOKASSA / SBP — 150 RUB) -->
   <div id="unlock-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl">
@@ -754,6 +774,13 @@
         rooms: [...currentRoomsList],
         works: currentEstimateItems.map(i => ({ ...i })),
         materials: currentMaterialsList.map(m => ({ ...m })),
+        showPanelStrip: document.getElementById('panel-strip-toggle').checked,
+        splitStages: document.getElementById('split-stages-toggle').checked,
+        autoMaterials: document.getElementById('auto-materials-toggle').checked,
+        matDisplayMode: document.getElementById('mat-display-mode').value,
+        masterName: document.getElementById('master-name').value,
+        masterPhone: document.getElementById('master-phone').value,
+        summarySnapshot: summary,
         grandTotal: summary.grand_total,
         worksCount: currentEstimateItems.length,
         materialsCount: currentMaterialsList.length
@@ -779,6 +806,10 @@
       currentRoomsList = Array.isArray(rec.rooms) ? [...rec.rooms] : [];
       currentEstimateItems = Array.isArray(rec.works) ? rec.works.map(w => ({ ...w })) : [];
       currentMaterialsList = Array.isArray(rec.materials) ? rec.materials.map(m => ({ ...m })) : [];
+      if (rec.showPanelStrip !== undefined) document.getElementById('panel-strip-toggle').checked = rec.showPanelStrip;
+      if (rec.splitStages !== undefined) document.getElementById('split-stages-toggle').checked = rec.splitStages;
+      if (rec.autoMaterials !== undefined) document.getElementById('auto-materials-toggle').checked = rec.autoMaterials;
+      if (rec.matDisplayMode) document.getElementById('mat-display-mode').value = rec.matDisplayMode;
       switchTab('simulator');
       renderEstimate();
       if (notify) showToast('Открыта смета: ' + rec.object);
@@ -811,9 +842,12 @@
           </div>
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
             <div class="mono text-base font-extrabold text-amber-400">${formatRub(h.grandTotal)} ₽</div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button onclick="openDocPreviewModal('${h.id}')" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold transition">
+                👁️ Просмотр PDF
+              </button>
               <button onclick="openHistoryEstimate('${h.id}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition">
-                ✏️ Открыть
+                ✏️ Править
               </button>
               <button onclick="deleteHistoryEstimate('${h.id}')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-600/80 text-slate-300 hover:text-white text-xs transition" title="Удалить">
                 🗑️
@@ -893,6 +927,7 @@
       const payloadToBot = {
         action: "update_estimate",
         is_dop: (docMode === 'dop'),
+        show_panel_strip: document.getElementById('panel-strip-toggle').checked,
         object: document.getElementById('client-object').value || 'Объект заказчика',
         master_title: document.getElementById('master-name').value,
         master_phone: document.getElementById('master-phone').value,
@@ -1329,6 +1364,154 @@
       populateWorkDropdown();
       renderEstimate();
       showToast(mult > 1 ? 'Применены расценки Москва / СПб (×1.35)' : 'Применены базовые расценки регионов РФ');
+    }
+
+    let previewingHistoryId = null;
+
+    function openDocPreviewModal(id) {
+      const rec = savedHistory.find(h => h.id === id);
+      if (!rec) return;
+      previewingHistoryId = id;
+
+      const s = rec.summarySnapshot || {
+        stage1_rows: [], stage2_rows: [], stage1_sum: 0, stage2_sum: 0,
+        works_total: rec.grandTotal || 0, discount_pct: rec.discountPct || 0,
+        discount_rub: 0, materials_out: rec.materials || [], materials_total: 0,
+        grand_total: rec.grandTotal || 0, prepay: 0
+      };
+
+      // Если summarySnapshot не был сохранён в старой записи — пересчитаем на лету
+      let stage1Rows = s.stage1_rows || [];
+      let stage2Rows = s.stage2_rows || [];
+      if (stage1Rows.length === 0 && stage2Rows.length === 0 && Array.isArray(rec.works)) {
+        rec.works.forEach(w => {
+          const cat = ELECTRICAL_CATALOG.find(c => c.id === w.id);
+          if (!cat) return;
+          const row = { name: cat.name, unit: cat.unit, qty: w.qty, price: cat.price, sum: cat.price * w.qty };
+          if (cat.stage === 1) stage1Rows.push(row);
+          else stage2Rows.push(row);
+        });
+      }
+
+      const showStrip = (rec.showPanelStrip !== undefined) ? rec.showPanelStrip : true;
+      const showRooms = Array.isArray(rec.rooms) && rec.rooms.length > 0 && rec.docMode !== 'dop';
+      const mats = (s.materials_out && s.materials_out.length) ? s.materials_out : (rec.materials || []);
+      const isSpecOnly = (rec.matDisplayMode === 'spec_only');
+
+      const renderRows = (rows) => rows.map(r => `
+        <tr class="border-b border-slate-200">
+          <td class="py-1.5 pr-2 font-medium text-slate-900">${r.name}</td>
+          <td class="py-1.5 px-1 text-center text-slate-500">${r.unit || 'шт.'}</td>
+          <td class="py-1.5 px-2 text-center mono">${r.qty}</td>
+          <td class="py-1.5 px-2 text-right mono">${formatRub(r.price)}</td>
+          <td class="py-1.5 pl-2 text-right mono font-semibold">${formatRub(r.sum !== undefined ? r.sum : (r.qty * r.price))}</td>
+        </tr>
+      `).join('');
+
+      const roomsHtml = showRooms ? `
+        <div class="mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <div class="text-[11px] font-bold uppercase text-slate-700 mb-1">Разбивка точек по помещениям:</div>
+          <ul class="list-disc pl-4 text-xs text-slate-700 space-y-0.5">${rec.rooms.map(r => `<li>${r}</li>`).join('')}</ul>
+        </div>` : '';
+
+      const stripHtml = (showStrip && rec.docMode !== 'dop') ? `
+        <div class="mt-5 pt-4 border-t border-dashed border-slate-400">
+          <div class="text-[11px] font-bold uppercase text-slate-700 mb-2">3. Маркировка модулей электрощита (DIN 17.5 мм):</div>
+          <div class="grid grid-cols-4 sm:grid-cols-8 border-2 border-slate-900 rounded-lg overflow-hidden text-center text-[10px]">
+            <div class="border-r border-slate-300"><div class="bg-rose-600 text-white font-bold py-0.5 text-[9px]">QF1 • C50</div><div class="py-1.5 px-1 font-extrabold">ВВОДНОЙ</div></div>
+            <div class="border-r border-slate-300"><div class="bg-amber-500 text-slate-950 font-bold py-0.5 text-[9px]">KV1 • 63А</div><div class="py-1.5 px-1 font-extrabold">РЕЛЕ НАПР.</div></div>
+            <div class="border-r border-slate-300"><div class="bg-sky-600 text-white font-bold py-0.5 text-[9px]">QFD1 • 40А</div><div class="py-1.5 px-1 font-extrabold">УЗО ГР.1</div></div>
+            <div class="border-r border-slate-300"><div class="bg-slate-800 text-white font-bold py-0.5 text-[9px]">QF2 • C32</div><div class="py-1.5 px-1 font-extrabold">ВАРОЧНАЯ</div></div>
+            <div class="border-r border-slate-300"><div class="bg-slate-700 text-white font-bold py-0.5 text-[9px]">QF3 • C16</div><div class="py-1.5 px-1 font-extrabold">ДУХОВКА</div></div>
+            <div class="border-r border-slate-300"><div class="bg-slate-700 text-white font-bold py-0.5 text-[9px]">QF4 • C16</div><div class="py-1.5 px-1 font-extrabold">КУХНЯ</div></div>
+            <div class="border-r border-slate-300"><div class="bg-emerald-700 text-white font-bold py-0.5 text-[9px]">QF5 • АВДТ</div><div class="py-1.5 px-1 font-extrabold">САНУЗЕЛ</div></div>
+            <div><div class="bg-amber-600 text-white font-bold py-0.5 text-[9px]">QF6 • C10</div><div class="py-1.5 px-1 font-extrabold">СВЕТ</div></div>
+          </div>
+        </div>` : '';
+
+      const html = `
+        <div class="flex flex-wrap items-start justify-between gap-4 pb-4 border-b-2 border-slate-900">
+          <div>
+            <div class="inline-block px-2 py-0.5 rounded bg-slate-900 text-amber-400 text-[10px] font-bold uppercase mb-1">
+              ${rec.docMode === 'dop' ? 'Акт дополнительных работ' : 'Сметный расчёт на электромонтаж'}
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900">${rec.object}</h3>
+            <div class="text-xs text-slate-500 mt-0.5">Дата сохранения: ${rec.date}</div>
+          </div>
+          <div class="text-left sm:text-right text-xs text-slate-700">
+            <div class="font-bold text-sm text-slate-900">${rec.masterName || document.getElementById('master-name').value}</div>
+            <div>Тел. / СБП: ${rec.masterPhone || document.getElementById('master-phone').value}</div>
+            <div class="text-emerald-700 font-semibold">Гарантия: 5 лет (СП 256.1325800)</div>
+          </div>
+        </div>
+        ${roomsHtml}
+        <div class="mt-5">
+          <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">1. Ведомость электромонтажных работ</h4>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b-2 border-slate-900 text-[10.5px] uppercase text-slate-600">
+                <th class="py-1.5 pr-2">Наименование работ</th>
+                <th class="py-1.5 px-1 text-center">Ед.</th>
+                <th class="py-1.5 px-2 text-center">Кол-во</th>
+                <th class="py-1.5 px-2 text-right">Цена (₽)</th>
+                <th class="py-1.5 pl-2 text-right">Сумма (₽)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${stage1Rows.length ? '<tr class="bg-slate-100"><td colspan="5" class="py-1 px-2 text-[10.5px] font-bold uppercase">Этап 1. Черновой электромонтаж</td></tr>' + renderRows(stage1Rows) : ''}
+              ${stage2Rows.length ? '<tr class="bg-slate-100"><td colspan="5" class="py-1 px-2 text-[10.5px] font-bold uppercase">Этап 2. Чистовая установка</td></tr>' + renderRows(stage2Rows) : ''}
+            </tbody>
+          </table>
+          <div class="mt-2 text-xs text-slate-700">
+            • Этап 1 (Черновой): <strong>${formatRub(s.stage1_sum)} ₽</strong> &nbsp;|&nbsp; Этап 2 (Чистовой): <strong>${formatRub(s.stage2_sum)} ₽</strong>
+          </div>
+        </div>
+        ${mats.length ? `
+        <div class="mt-5 pt-4 border-t border-slate-300">
+          <h4 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Расходные материалы и оснастка</h4>
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-400 text-[10.5px] uppercase text-slate-600">
+                <th class="py-1.5 pr-2">Материал</th>
+                <th class="py-1.5 px-1 text-center">Ед.</th>
+                <th class="py-1.5 px-2 text-center">Кол-во</th>
+                ${isSpecOnly ? '' : '<th class="py-1.5 px-2 text-right">Цена (₽)</th><th class="py-1.5 pl-2 text-right">Сумма (₽)</th>'}
+              </tr>
+            </thead>
+            <tbody>
+              ${mats.map(m => `
+                <tr class="border-b border-slate-200">
+                  <td class="py-1.5 pr-2">${m.name}</td>
+                  <td class="py-1.5 px-1 text-center text-slate-500">${m.unit || 'шт.'}</td>
+                  <td class="py-1.5 px-2 text-center mono">${m.qty}</td>
+                  ${isSpecOnly ? '' : `<td class="py-1.5 px-2 text-right mono">${formatRub(m.price)}</td><td class="py-1.5 pl-2 text-right mono font-medium">${formatRub(Math.round(m.qty * m.price))}</td>`}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>` : ''}
+        ${stripHtml}
+        <div class="mt-5 pt-4 border-t-2 border-slate-900 bg-slate-100 rounded-xl p-4 text-right space-y-1">
+          <div class="text-xs text-slate-600">Итого работы: <strong class="mono text-slate-900">${formatRub(s.works_total)} ₽</strong></div>
+          <div class="text-xs text-emerald-700">Скидка (${s.discount_pct || 0}%): <strong class="mono">−${formatRub(s.discount_rub)} ₽</strong></div>
+          ${isSpecOnly ? '' : `<div class="text-xs text-slate-600">Материалы и оснастка: <strong class="mono text-slate-900">${formatRub(s.materials_total)} ₽</strong></div>`}
+          <div class="pt-2 border-t border-slate-300 text-lg font-black text-slate-900 mono">ИТОГО ПО СМЕТЕ: ${formatRub(s.grand_total)} ₽</div>
+          <div class="text-xs text-slate-600">Аванс (СБП): <strong class="mono text-slate-900">${formatRub(s.prepay)} ₽</strong></div>
+        </div>
+      `;
+
+      document.getElementById('doc-preview-content').innerHTML = html;
+      document.getElementById('doc-preview-modal').classList.remove('hidden');
+    }
+
+    function closeDocPreviewModal() {
+      document.getElementById('doc-preview-modal').classList.add('hidden');
+    }
+
+    function editFromPreviewModal() {
+      const id = previewingHistoryId;
+      closeDocPreviewModal();
+      if (id) openHistoryEstimate(id);
     }
 
     function openUnlockModal() { document.getElementById('unlock-modal').classList.remove('hidden'); }
