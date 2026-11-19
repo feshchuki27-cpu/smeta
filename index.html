@@ -935,8 +935,20 @@
 
       renderProfessionSelector();
 
+      const urlProfParam = new URLSearchParams(window.location.search).get('prof');
       if (loadEstimateFromUrlParams()) {
+        saveMasterProfile();
         saveCurrentEstimateToHistory(false);
+      } else if (urlProfParam && PROFESSIONS_DB[urlProfParam]) {
+        currentProfId = urlProfParam;
+        saveMasterProfile();
+        const sameProfEst = savedHistory.find(h => (h.profId || 'electrician') === urlProfParam);
+        if (sameProfEst) {
+          openHistoryEstimate(sameProfEst.id, false);
+        } else {
+          applyProfessionUI(urlProfParam, false);
+          startNewBlankEstimate(false);
+        }
       } else if (savedHistory.length > 0) {
         openHistoryEstimate(savedHistory[0].id, false);
       } else {
