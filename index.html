@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>МастерСмета AI — Мультипрофессиональный сметчик мастеров</title>
+  <title>МастерСмета AI v6.1 — Мультипрофессиональный сметчик мастеров</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,7 +34,7 @@
             <h1 class="font-bold text-lg tracking-tight text-white">МастерСмета AI</h1>
             <span id="from-bot-badge" class="hidden text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Голосовая смета</span>
           </div>
-          <p id="header-prof-subtitle" class="text-xs text-slate-400">Электромонтаж • Сметы, материалы и архив объектов</p>
+          <p id="header-prof-subtitle" class="text-xs text-slate-400">Электромонтаж • Расширенные прайсы работ и материалов</p>
         </div>
       </div>
 
@@ -64,11 +64,11 @@
   <!-- MAIN CONTENT -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-5">
 
-    <!-- PROFESSION SELECTOR BAR (ALWAYS ACCESSIBLE AT TOP) -->
+    <!-- PROFESSION SELECTOR BAR -->
     <div class="mb-5 bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-lg">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">👷 Выберите вашу специальность (меняет прайс работ, расходники и ГОСТ):</span>
-        <span id="active-prof-count" class="text-[11px] text-slate-400 mono">Библиотека: 26 работ</span>
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">👷 Выберите специальность (переключает библиотеку работ, расходников и ГОСТ):</span>
+        <span id="active-prof-count" class="text-[11px] text-slate-400 mono">26 работ • 11 материалов</span>
       </div>
       <div id="profession-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2"></div>
     </div>
@@ -126,7 +126,7 @@
           </div>
         </div>
 
-        <!-- SECTIONS TOGGLES -->
+        <!-- SECTIONS TOGGLES (WITHOUT PANEL STRIP) -->
         <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2.5">
           <div class="text-xs font-bold uppercase tracking-wider text-amber-400">Разделы сметы:</div>
 
@@ -146,18 +146,10 @@
             <input id="diamond-wear-toggle" type="checkbox" checked onchange="recalcAutoMaterialsKeepCustom(); renderEstimate();" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
           </label>
 
-          <label id="panel-strip-toggle-row" class="flex items-center justify-between cursor-pointer py-1 border-t border-slate-800/80">
-            <div>
-              <span class="text-xs font-semibold text-white block">3. Маркировка модулей щита (DIN 17.5 мм)</span>
-              <span class="text-[11px] text-slate-400">Наклейка на пластрон щита (для электриков)</span>
-            </div>
-            <input id="panel-strip-toggle" type="checkbox" checked onchange="renderEstimate()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
-          </label>
-
           <div class="pt-1 border-t border-slate-800/80 space-y-2">
             <label class="flex items-center justify-between cursor-pointer">
               <div>
-                <span class="text-xs font-semibold text-white block">4. Указывать аванс в смете (СБП)</span>
+                <span class="text-xs font-semibold text-white block">3. Указывать аванс в смете (СБП)</span>
                 <span class="text-[11px] text-slate-400">Выключите, если работаете без предоплаты</span>
               </div>
               <input id="prepay-toggle" type="checkbox" checked onchange="togglePrepayUI()" class="w-5 h-5 accent-amber-500 rounded cursor-pointer">
@@ -268,12 +260,12 @@
           <!-- SECTION 1: WORKS TABLE -->
           <div class="mt-5">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <h4 id="doc-works-heading" class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Ведомость работ</h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">1. Ведомость работ</h4>
               <span id="doc-coeff-banner" class="hidden text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900"></span>
             </div>
 
             <div id="empty-works-notice" class="hidden p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 mb-3">
-              В смете пока нет работ. Выберите позицию из библиотеки выбранной профессии ниже и нажмите <strong>«+ Добавить работу»</strong>, либо продиктуйте замер голосом в боте.
+              В смете пока нет работ. Выберите позицию из расширенной библиотеки выбранной профессии ниже и нажмите <strong>«+ Добавить работу»</strong>, либо продиктуйте замер голосом в боте.
             </div>
 
             <div class="overflow-x-auto">
@@ -295,15 +287,11 @@
             <!-- STAGE SUBTOTALS -->
             <div id="doc-stages-summary" class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div class="p-3 rounded-xl bg-slate-900 text-white flex items-center justify-between">
-                <div>
-                  <div class="text-[10.5px] uppercase tracking-wider text-amber-400 font-bold">Этап 1: Основной / Черновой</div>
-                </div>
+                <div class="text-[10.5px] uppercase tracking-wider text-amber-400 font-bold">Этап 1: Основной / Черновой</div>
                 <div id="stage1-sum-val" class="mono text-sm sm:text-base font-extrabold text-amber-400">0 ₽</div>
               </div>
               <div class="p-3 rounded-xl bg-slate-100 border border-slate-300 text-slate-900 flex items-center justify-between">
-                <div>
-                  <div class="text-[10.5px] uppercase tracking-wider text-slate-600 font-bold">Этап 2: Финишный / Доп.</div>
-                </div>
+                <div class="text-[10.5px] uppercase tracking-wider text-slate-600 font-bold">Этап 2: Финишный / Доп.</div>
                 <div id="stage2-sum-val" class="mono text-sm sm:text-base font-extrabold text-slate-900">0 ₽</div>
               </div>
             </div>
@@ -321,7 +309,7 @@
           <!-- SECTION 2: EDITABLE MATERIALS TABLE -->
           <div id="doc-materials-section" class="mt-6 pt-4 border-t border-slate-300">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
-              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Расходные материалы и комплектующие</h4>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">2. Расходные материалы, конструкции и комплектующие</h4>
               <button onclick="recalcAutoMaterialsKeepCustom(); renderEstimate(); showToast('Материалы пересчитаны по работам');" class="text-[11px] text-emerald-700 hover:underline font-semibold">
                 🔄 Пересчитать по работам
               </button>
@@ -330,7 +318,7 @@
               <table class="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
                   <tr class="border-b border-slate-400 text-[11px] uppercase text-slate-600">
-                    <th class="py-1.5 pr-2">Материал / Комплектующие</th>
+                    <th class="py-1.5 pr-2">Материал / Конструкция / Комплектующие</th>
                     <th class="py-1.5 px-1 text-center">Ед.</th>
                     <th class="py-1.5 px-2 text-center">Кол-во</th>
                     <th id="th-mat-price" class="py-1.5 px-2 text-right">Цена (₽)</th>
@@ -342,25 +330,28 @@
               </table>
             </div>
 
-            <!-- ADD CUSTOM MATERIAL FORM -->
-            <div class="mt-3 p-3 rounded-xl bg-slate-100 border border-slate-300">
-              <div class="text-[11px] font-bold text-slate-700 mb-2">➕ Добавить свой расходник или оборудование:</div>
-              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-                <input id="custom-mat-name" type="text" placeholder="Название материала или оборудования" class="sm:col-span-5 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900">
-                <input id="custom-mat-unit" type="text" value="шт." placeholder="Ед." class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-center">
-                <input id="custom-mat-qty" type="number" min="1" value="1" placeholder="Кол-во" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
-                <input id="custom-mat-price" type="number" min="0" step="10" value="1500" placeholder="Цена ₽" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
-                <button onclick="addCustomMaterialManual()" class="sm:col-span-1 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition text-center">
-                  +
+            <!-- QUICK ADD MATERIAL FROM PROFESSION LIBRARY -->
+            <div class="mt-3 p-3 rounded-xl bg-slate-100 border border-slate-300 space-y-2.5">
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="add-mat-select" class="flex-1 min-w-[200px] bg-white border border-slate-300 text-slate-800 rounded-lg px-2.5 py-1.5 text-xs">
+                </select>
+                <button onclick="addSelectedMaterialFromCatalog()" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold transition">
+                  + Из библиотеки материалов
                 </button>
               </div>
+              <div class="pt-2 border-t border-slate-300">
+                <div class="text-[11px] font-bold text-slate-700 mb-1.5">Или введите свой произвольный материал / конструкцию:</div>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                  <input id="custom-mat-name" type="text" placeholder="Название материала, окна или оборудования" class="sm:col-span-5 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900">
+                  <input id="custom-mat-unit" type="text" value="шт." placeholder="Ед." class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-center">
+                  <input id="custom-mat-qty" type="number" min="1" value="1" placeholder="Кол-во" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
+                  <input id="custom-mat-price" type="number" min="0" step="10" value="1500" placeholder="Цена ₽" class="sm:col-span-2 bg-white border border-slate-300 rounded-lg px-2 py-1.5 text-xs text-slate-900 text-right mono">
+                  <button onclick="addCustomMaterialManual()" class="sm:col-span-1 px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition text-center">
+                    +
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <!-- DIN-RAIL PANEL LABELING STRIP (ELECTRICIAN ONLY) -->
-          <div id="doc-panel-strip-section" class="mt-6 pt-4 border-t border-dashed border-slate-400">
-            <div class="text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2">✂️ Маркировка модулей электрощита (DIN 17.5 мм):</div>
-            <div id="doc-panel-strip-grid" class="grid grid-cols-4 sm:grid-cols-8 border-2 border-slate-900 rounded-lg overflow-hidden text-center text-[10px]"></div>
           </div>
 
           <!-- TOTALS FOOTER -->
@@ -385,7 +376,7 @@
                 <span id="sum-discount" class="mono font-semibold">-0 ₽</span>
               </div>
               <div id="row-sum-materials" class="flex justify-between text-xs text-slate-600">
-                <span>Материалы и оснастка:</span>
+                <span>Материалы и конструкции:</span>
                 <span id="sum-materials" class="mono font-semibold text-slate-900">0 ₽</span>
               </div>
               <div class="pt-2 border-t border-slate-300 flex justify-between items-baseline">
@@ -401,11 +392,12 @@
 
     <!-- ==================== TAB 2: ПРАЙС И МАТЕРИАЛЫ ==================== -->
     <section id="view-catalog" class="hidden space-y-6">
+      <!-- MATERIALS LIBRARY -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
-            <span class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Справочник расходников выбранной профессии</span>
-            <h2 id="catalog-mats-title" class="text-xl font-bold text-white mt-0.5">Базовые цены на расходные материалы</h2>
+            <span class="text-xs uppercase tracking-wider text-emerald-400 font-semibold">Расширенный справочник расходников и конструкций</span>
+            <h2 id="catalog-mats-title" class="text-xl font-bold text-white mt-0.5">Базовые цены на материалы</h2>
           </div>
         </div>
 
@@ -413,8 +405,8 @@
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-slate-700 text-xs uppercase text-slate-400">
-                <th class="py-2.5 pr-3">Наименование материала</th>
-                <th class="py-2.5 px-3">Правило расчёта</th>
+                <th class="py-2.5 pr-3">Наименование материала / конструкции</th>
+                <th class="py-2.5 px-3">Примечание / Норматив</th>
                 <th class="py-2.5 px-3 text-center">Ед.</th>
                 <th class="py-2.5 pl-3 text-right">Цена (₽)</th>
               </tr>
@@ -424,31 +416,32 @@
         </div>
 
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
-          <div class="text-xs font-bold text-amber-400 mb-2">➕ Добавить свой постоянный материал в справочник:</div>
+          <div class="text-xs font-bold text-emerald-400 mb-2">➕ Добавить и сохранить свой материал / конструкцию в библиотеку профессии:</div>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
-            <input id="cat-new-mat-name" type="text" placeholder="Наименование материала" class="sm:col-span-6 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            <input id="cat-new-mat-name" type="text" placeholder="Наименование (напр. Окно Rehau Intelio 80 мультифункциональное)" class="sm:col-span-6 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
             <input id="cat-new-mat-unit" type="text" value="шт." class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white text-center">
-            <input id="cat-new-mat-price" type="number" min="1" value="1500" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 text-right mono">
-            <button onclick="addNewCatalogMaterial()" class="sm:col-span-2 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition">
-              Сохранить
+            <input id="cat-new-mat-price" type="number" min="1" value="1500" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-emerald-300 text-right mono">
+            <button onclick="addNewCatalogMaterial()" class="sm:col-span-2 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-xs transition">
+              Сохранить в базу
             </button>
           </div>
         </div>
       </div>
 
+      <!-- WORKS LIBRARY + ADD CUSTOM WORK TO LIBRARY -->
       <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6">
-        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-5">
           <div>
-            <span class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Справочник работ выбранной профессии</span>
+            <span class="text-xs uppercase tracking-wider text-amber-400 font-semibold">Расширенный справочник работ выбранной профессии</span>
             <h2 id="catalog-works-title" class="text-xl font-bold text-white mt-0.5">Прайс-лист на работы</h2>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="applyRegionalMultiplier(1.0)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">Регионы РФ (×1.0)</button>
+            <button onclick="applyRegionalMultiplier(1.0)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-200 border border-slate-700">Сбросить (×1.0)</button>
             <button onclick="applyRegionalMultiplier(1.35)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-amber-300 border border-amber-500/30">Москва / СПб (×1.35)</button>
           </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto mb-4">
           <table class="w-full text-left border-collapse text-sm">
             <thead>
               <tr class="border-b border-slate-700 text-xs uppercase text-slate-400">
@@ -461,6 +454,23 @@
             </thead>
             <tbody id="catalog-tbody" class="divide-y divide-slate-800/80"></tbody>
           </table>
+        </div>
+
+        <!-- NEW: ADD & SAVE CUSTOM WORK TO PROFESSION LIBRARY -->
+        <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
+          <div class="text-xs font-bold text-amber-400 mb-2">➕ Добавить и сохранить свою работу в библиотеку профессии:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
+            <input id="cat-new-work-name" type="text" placeholder="Наименование работы (напр. Монтаж панорамного портала HS)" class="sm:col-span-5 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+            <select id="cat-new-work-stage" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white">
+              <option value="1">Этап 1 (Осн.)</option>
+              <option value="2">Этап 2 (Фин.)</option>
+            </select>
+            <input id="cat-new-work-unit" type="text" value="шт." placeholder="Ед." class="sm:col-span-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white text-center">
+            <input id="cat-new-work-price" type="number" min="10" step="10" value="2500" placeholder="Цена ₽" class="sm:col-span-2 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-amber-300 text-right mono">
+            <button onclick="addNewCatalogWork()" class="sm:col-span-2 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold text-xs transition">
+              Сохранить в базу
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -482,7 +492,7 @@
         <div id="history-empty" class="hidden p-8 rounded-xl bg-slate-950 border border-slate-800 text-center">
           <div class="text-3xl mb-2">🗂️</div>
           <div class="text-sm font-semibold text-white">У вас пока нет сохранённых смет</div>
-          <p class="text-xs text-slate-400 mt-1">Продиктуйте замер голосом в чате бота и откройте смету в приложении — она сразу появится здесь.</p>
+          <p class="text-xs text-slate-400 mt-1">Продиктуйте замер голосом в чате бота или соберите смету вручную — она сразу появится здесь.</p>
         </div>
 
         <div id="history-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
@@ -512,8 +522,8 @@
               </div>
               <ul class="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-200">
                 <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span><strong>Безлимитное количество</strong> чистых PDF-смет без водяного знака</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Доступ ко всем 6 библиотекам профессий (электрика, потолки, окна, климат, плитка, сантехника)</span></li>
-                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Длинные голосовые до 10+ мин и любые нестандартные работы</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Доступ ко всем 6 расширенным библиотекам профессий</span></li>
+                <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Сохранение собственных видов работ и материалов в личной базе</span></li>
                 <li class="flex items-start gap-2"><span class="text-emerald-400 font-bold">✓</span> <span>Акты доп. работ (Допы) и архив «Мои сметы»</span></li>
               </ul>
             </div>
@@ -591,51 +601,60 @@
   </div>
 
   <script>
-    const STORAGE_HISTORY_KEY = 'mastersmeta_history_v6';
-    const STORAGE_PROFILE_KEY = 'mastersmeta_profile_v6';
+    const STORAGE_HISTORY_KEY = 'mastersmeta_history_v61';
+    const STORAGE_PROFILE_KEY = 'mastersmeta_profile_v61';
+    const STORAGE_CUSTOM_CATALOG_KEY = 'mastersmeta_custom_catalog_v61';
 
-    // БИБЛИОТЕКА 6 ПРОФЕССИЙ (РАБОТЫ + РАСХОДНИКИ + ОТРАСЛЕВЫЕ ГОСТЫ)
+    // РАСШИРЕННАЯ БИБЛИОТЕКА 6 ПРОФЕССИЙ (110+ ВИДОВ РАБОТ И 60+ МАТЕРИАЛОВ И КОНСТРУКЦИЙ)
     const PROFESSIONS_DB = {
       electrician: {
         id: "electrician",
         icon: "⚡",
         shortName: "Электрик",
         title: "Смета на электромонтажные работы",
-        subtitle: "Электромонтаж • Сметы, материалы и маркировка щита",
+        subtitle: "Электромонтаж • 26 видов работ и 11 групп расходников",
         gost: "Гарантия: 5 лет (СП 256.1325800 / ПУЭ-7)",
-        hasPanelStrip: true,
         hasDiamondWear: true,
         works: [
           { id: "el_01", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в бетоне / монолите", unit: "шт.", price: 650 },
           { id: "el_02", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в кирпиче", unit: "шт.", price: 450 },
-          { id: "el_03", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в газоблоке / ГКЛ", unit: "шт.", price: 350 },
+          { id: "el_03", stage: 1, cat: "Черновые точки", name: "Бурение и монтаж подрозетника в газоблоке / гипсе / ГКЛ", unit: "шт.", price: 350 },
           { id: "el_04", stage: 1, cat: "Штробление", name: "Штробление стен под кабель в бетоне (с пылесосом)", unit: "м.п.", price: 550 },
           { id: "el_05", stage: 1, cat: "Штробление", name: "Штробление стен в кирпиче / штукатурке", unit: "м.п.", price: 350 },
-          { id: "el_06", stage: 1, cat: "Штробление", name: "Штробление стен в газоблоке", unit: "м.п.", price: 250 },
+          { id: "el_06", stage: 1, cat: "Штробление", name: "Штробление стен в газоблоке / пеноблоке", unit: "м.п.", price: 250 },
           { id: "el_07", stage: 1, cat: "Кабель", name: "Прокладка силового кабеля ВВГнг-LS (в гофре / по потолку)", unit: "м.п.", price: 160 },
-          { id: "el_08", stage: 1, cat: "Кабель", name: "Укладка кабеля в готовую штробу", unit: "м.п.", price: 110 },
+          { id: "el_08", stage: 1, cat: "Кабель", name: "Укладка кабеля в готовую штробу с фиксацией", unit: "м.п.", price: 110 },
           { id: "el_09", stage: 1, cat: "Слаботочка", name: "Прокладка слаботочного кабеля (UTP витая пара / ТВ)", unit: "м.п.", price: 120 },
           { id: "el_10", stage: 1, cat: "Коробки", name: "Монтаж и расключение распредкоробки (сварка/опрессовка)", unit: "шт.", price: 1200 },
-          { id: "el_11", stage: 1, cat: "Щиты", name: "Сборка электрощита до 24 модулей", unit: "шт.", price: 6500 },
-          { id: "el_12", stage: 1, cat: "Щиты", name: "Сборка электрощита на 36 модулей", unit: "шт.", price: 9500 },
-          { id: "el_13", stage: 1, cat: "Щиты", name: "Сборка электрощита на 54–72 модуля", unit: "шт.", price: 14500 },
+          { id: "el_11", stage: 1, cat: "Щиты", name: "Сборка и коммутация электрощита до 24 модулей", unit: "шт.", price: 6500 },
+          { id: "el_12", stage: 1, cat: "Щиты", name: "Сборка и коммутация электрощита на 36 модулей", unit: "шт.", price: 9500 },
+          { id: "el_13", stage: 1, cat: "Щиты", name: "Сборка и коммутация электрощита на 54–72 модуля", unit: "шт.", price: 14500 },
           { id: "el_14", stage: 1, cat: "Щиты", name: "Выдалбливание ниши под электрощит в бетоне", unit: "шт.", price: 4500 },
-          { id: "el_16", stage: 2, cat: "Чистовой", name: "Установка механизма розетки / выключателя", unit: "шт.", price: 300 },
-          { id: "el_17", stage: 2, cat: "Освещение", name: "Монтаж точечного светильника / спота", unit: "шт.", price: 450 },
-          { id: "el_18", stage: 2, cat: "Освещение", name: "Навеска люстры / подвесного светильника", unit: "шт.", price: 1500 },
-          { id: "el_19", stage: 2, cat: "Освещение", name: "Монтаж светодиодной ленты с профилем и БП", unit: "м.п.", price: 650 },
+          { id: "el_15", stage: 1, cat: "Щиты", name: "Установка и подключение модульной автоматики (АВ / УЗО / реле)", unit: "мод.", price: 350 },
+          { id: "el_16", stage: 2, cat: "Чистовой", name: "Установка механизма розетки / выключателя / проходного", unit: "шт.", price: 300 },
+          { id: "el_17", stage: 2, cat: "Освещение", name: "Монтаж и подключение точечного светильника / спота", unit: "шт.", price: 450 },
+          { id: "el_18", stage: 2, cat: "Освещение", name: "Сборка и навеска люстры / подвесного светильника", unit: "шт.", price: 1500 },
+          { id: "el_19", stage: 2, cat: "Освещение", name: "Монтаж светодиодной ленты с профилем и блоком питания", unit: "м.п.", price: 650 },
           { id: "el_20", stage: 2, cat: "Техника", name: "Подключение варочной панели / духового шкафа", unit: "шт.", price: 1800 },
           { id: "el_21", stage: 2, cat: "Тепло", name: "Монтаж электрического тёплого пола с терморегулятором", unit: "компл.", price: 2800 },
-          { id: "el_24", stage: 1, cat: "Защита", name: "Монтаж контура заземления (частный дом)", unit: "компл.", price: 12000 }
+          { id: "el_22", stage: 2, cat: "Техника", name: "Вывод и подключение водонагревателя (бойлера) / полотенцесушителя", unit: "шт.", price: 1400 },
+          { id: "el_23", stage: 1, cat: "Защита", name: "Монтаж системы уравнивания потенциалов (КУП в санузле)", unit: "шт.", price: 1800 },
+          { id: "el_24", stage: 1, cat: "Защита", name: "Монтаж модульно-штыревого контура заземления", unit: "компл.", price: 12000 },
+          { id: "el_25", stage: 1, cat: "Проходы", name: "Алмазное сверление сквозного отверстия в стене до 250 мм", unit: "шт.", price: 600 },
+          { id: "el_26", stage: 1, cat: "Временные", name: "Демонтаж старой электропроводки и временный свет", unit: "компл.", price: 4500 }
         ],
         materials: [
           { id: "mat_pod", name: "Подрозетники углублённые 68×60 мм (Schneider) + алебастр", unit: "шт.", price: 48, rule: "1 шт. на точку бурения", volatile: false },
-          { id: "mat_vvg25", name: "Кабель силовой ВВГнг(А)-LS 3×2.5 мм² ГОСТ", unit: "м.п.", price: 118, rule: "62% силового кабеля", volatile: true },
-          { id: "mat_vvg15", name: "Кабель силовой ВВГнг(А)-LS 3×1.5 мм² ГОСТ", unit: "м.п.", price: 76, rule: "38% силового кабеля", volatile: true },
+          { id: "mat_vvg25", name: "Кабель силовой ВВГнг(А)-LS 3×2.5 мм² ГОСТ (розетки)", unit: "м.п.", price: 118, rule: "62% силового кабеля", volatile: true },
+          { id: "mat_vvg15", name: "Кабель силовой ВВГнг(А)-LS 3×1.5 мм² ГОСТ (свет)", unit: "м.п.", price: 76, rule: "38% силового кабеля", volatile: true },
+          { id: "mat_vvg60", name: "Кабель силовой ВВГнг(А)-LS 3×6 мм² ГОСТ (варочная / ввод)", unit: "м.п.", price: 295, rule: "Выбор из библиотеки", volatile: true },
           { id: "mat_gofra", name: "Гофра ПВХ d20 с зондом + клипсы и дюбель-гвозди", unit: "м.п.", price: 34, rule: "100% метража кабеля", volatile: false },
           { id: "mat_utp", name: "Кабель витая пара UTP Cat 5e Cu (медь)", unit: "м.п.", price: 45, rule: "100% слаботочки", volatile: true },
-          { id: "mat_box", name: "Коробки распаячные IP54 + гильзы ГМЛ / WAGO", unit: "компл.", price: 390, rule: "1 компл. на коробку", volatile: false },
-          { id: "mat_auto", name: "Модульная автоматика (Вводной АВ, УЗО, АВ групп)", unit: "групп", price: 1150, rule: "1 группа на 3 модуля щита", volatile: false }
+          { id: "mat_box", name: "Коробки распаячные IP54 + гильзы ГМЛ / WAGO / термоусадка", unit: "компл.", price: 390, rule: "1 компл. на коробку", volatile: false },
+          { id: "mat_auto", name: "Модульная автоматика (Вводной АВ, УЗО тип А, АВ групп)", unit: "групп", price: 1150, rule: "1 группа на 3 модуля щита", volatile: false },
+          { id: "mat_relay", name: "Реле контроля напряжения 63А (ЗУБР / Новатек-Электро)", unit: "шт.", price: 3400, rule: "Защита квартиры от скачков", volatile: false },
+          { id: "mat_dif", name: "Дифавтомат АВДТ 16А 30мА тип А (мокрые зоны)", unit: "шт.", price: 2850, rule: "На санузел / ПММ / бойлер", volatile: false },
+          { id: "mat_shield36", name: "Бокс встраиваемый 36 модулей (ABB / Hager / IEK Tekfor)", unit: "шт.", price: 6900, rule: "Корпус распределительного щита", volatile: false }
         ]
       },
       ceilings: {
@@ -643,82 +662,127 @@
         icon: "✨",
         shortName: "Потолки",
         title: "Смета на монтаж натяжных потолков",
-        subtitle: "Натяжные потолки • Полотна, теневой профиль, световые линии",
+        subtitle: "Натяжные потолки • 18 видов работ и 10 групп материалов",
         gost: "Гарантия на полотно: 10 лет • Монтаж: 3 года",
-        hasPanelStrip: false,
         hasDiamondWear: false,
         works: [
-          { id: "cl_01", stage: 1, cat: "Полотно", name: "Монтаж ПВХ-полотна MSD Premium / BAUF (мат/сатин)", unit: "м²", price: 550 },
-          { id: "cl_02", stage: 1, cat: "Полотно", name: "Монтаж тканевого полотна Descor / Clipso", unit: "м²", price: 1450 },
-          { id: "cl_03", stage: 1, cat: "Профиль", name: "Монтаж алюминиевого стенового профиля (багета)", unit: "м.п.", price: 220 },
-          { id: "cl_04", stage: 1, cat: "Профиль", name: "Монтаж теневого профиля EuroKRAAB / Flexy", unit: "м.п.", price: 750 },
-          { id: "cl_05", stage: 1, cat: "Профиль", name: "Монтаж парящего профиля с LED-подсветкой", unit: "м.п.", price: 950 },
-          { id: "cl_06", stage: 1, cat: "Свет", name: "Установка закладной и подключение точечного светильника", unit: "шт.", price: 650 },
-          { id: "cl_07", stage: 1, cat: "Свет", name: "Установка закладной и навеска люстры", unit: "шт.", price: 1200 },
-          { id: "cl_08", stage: 1, cat: "Свет", name: "Монтаж световой линии / встроенного трека SLOTT", unit: "м.п.", price: 2200 },
-          { id: "cl_09", stage: 2, cat: "Шторы", name: "Монтаж скрытой ниши под карниз ПК-5 / ПК-15", unit: "м.п.", price: 1600 },
-          { id: "cl_10", stage: 2, cat: "Допы", name: "Обвод трубы отопления / стояка с термокольцом", unit: "шт.", price: 450 },
-          { id: "cl_11", stage: 2, cat: "Допы", name: "Обработка дополнительного угла (свыше 4-х)", unit: "шт.", price: 250 },
-          { id: "cl_12", stage: 2, cat: "Допы", name: "Сверление керамогранита при монтаже багета", unit: "м.п.", price: 600 }
+          { id: "cl_01", stage: 1, cat: "Полотно", name: "Монтаж ПВХ-полотна MSD Premium / BAUF (мат/сатин/глянец)", unit: "м²", price: 550 },
+          { id: "cl_02", stage: 1, cat: "Полотно", name: "Монтаж тканевого полотна Descor / Clipso (холодная натяжка)", unit: "м²", price: 1450 },
+          { id: "cl_03", stage: 1, cat: "Полотно", name: "Монтаж светопрозрачного полотна (Full-light потолок)", unit: "м²", price: 1650 },
+          { id: "cl_04", stage: 1, cat: "Профиль", name: "Монтаж алюминиевого стенового профиля (багета)", unit: "м.п.", price: 220 },
+          { id: "cl_05", stage: 1, cat: "Профиль", name: "Монтаж теневого профиля EuroKRAAB / Flexy (с зазором 6 мм)", unit: "м.п.", price: 780 },
+          { id: "cl_06", stage: 1, cat: "Профиль", name: "Монтаж парящего профиля с LED-подсветкой по периметру", unit: "м.п.", price: 950 },
+          { id: "cl_07", stage: 1, cat: "Профиль", name: "Монтаж бесщелевого профиля KRAAB 3.0 / Шток", unit: "м.п.", price: 650 },
+          { id: "cl_08", stage: 1, cat: "Свет", name: "Установка закладной и подключение точечного светильника", unit: "шт.", price: 650 },
+          { id: "cl_09", stage: 1, cat: "Свет", name: "Установка закладной и навеска люстры (крюк / планка)", unit: "шт.", price: 1200 },
+          { id: "cl_10", stage: 1, cat: "Свет", name: "Монтаж световой линии (30 / 50 мм) с LED-лентой и рассеивателем", unit: "м.п.", price: 2200 },
+          { id: "cl_11", stage: 1, cat: "Свет", name: "Монтаж встроенного магнитного трека (шинопровода)", unit: "м.п.", price: 2800 },
+          { id: "cl_12", stage: 2, cat: "Шторы", name: "Монтаж скрытой ниши под шторный карниз ПК-5 / ПК-15", unit: "м.п.", price: 1600 },
+          { id: "cl_13", stage: 2, cat: "Шторы", name: "Установка закладной под потолочный карниз / электрокарниз", unit: "м.п.", price: 650 },
+          { id: "cl_14", stage: 2, cat: "Допы", name: "Обвод трубы отопления / стояка с термокольцом", unit: "шт.", price: 450 },
+          { id: "cl_15", stage: 2, cat: "Допы", name: "Обработка дополнительного угла (свыше 4-х в помещении)", unit: "шт.", price: 250 },
+          { id: "cl_16", stage: 2, cat: "Допы", name: "Сверление керамогранита при монтаже профиля", unit: "м.п.", price: 650 },
+          { id: "cl_17", stage: 2, cat: "Вентиляция", name: "Установка теневого диффузора / вытяжного вентилятора в потолок", unit: "шт.", price: 1400 },
+          { id: "cl_18", stage: 2, cat: "Сервис", name: "Демонтаж старого полотна / слив воды и просушка", unit: "услуга", price: 3500 }
         ],
         materials: [
-          { id: "cmat_pvc", name: "Полотно ПВХ BAUF 270 / MSD Evolution (с гарпуном)", unit: "м²", price: 340, rule: "По площади полотна", volatile: true },
-          { id: "cmat_prof", name: "Профиль стеновой алюминиевый / теневой + дюбель-гвозди", unit: "м.п.", price: 280, rule: "По периметру профиля", volatile: true },
-          { id: "cmat_ins", name: "Маскировочная лента ПВХ (вставка по периметру)", unit: "м.п.", price: 65, rule: "По периметру стенового профиля", volatile: false },
-          { id: "cmat_plat", name: "Универсальные платформы, термокольца, клей, кабель ВВГ", unit: "компл.", price: 180, rule: "На каждый светильник / люстру", volatile: false }
+          { id: "cmat_pvc", name: "Полотно ПВХ BAUF 270 / MSD Evolution (с гарпуном)", unit: "м²", price: 340, rule: "По площади ПВХ-полотна", volatile: true },
+          { id: "cmat_fabric", name: "Тканевое полотно Descor D-Premium (Германия)", unit: "м²", price: 1150, rule: "Для тканевых потолков", volatile: true },
+          { id: "cmat_prof", name: "Профиль стеновой алюминиевый усиленный + дюбель-гвозди", unit: "м.п.", price: 240, rule: "По периметру профиля", volatile: true },
+          { id: "cmat_kraab", name: "Профиль теневой EuroKRAAB чёрный (алюминий)", unit: "м.п.", price: 540, rule: "Для теневого примыкания", volatile: true },
+          { id: "cmat_ins", name: "Маскировочная лента ПВХ (вставка по периметру)", unit: "м.п.", price: 65, rule: "Для классического багета", volatile: false },
+          { id: "cmat_plat", name: "Универсальные платформы, термокольца, подвесы, клей Cosmofen", unit: "компл.", price: 180, rule: "На каждый светильник / люстру", volatile: false },
+          { id: "cmat_pk5", name: "Профиль-карниз ПК-5 / ПК-15 двухрядный с нишей (алюминий)", unit: "м.п.", price: 1250, rule: "На длину шторной ниши", volatile: true },
+          { id: "cmat_led", name: "LED-лента 24V (14.4 Вт/м, CRI>90) + блок питания 100–200Вт", unit: "м.п.", price: 590, rule: "Для парящего / световых линий", volatile: false },
+          { id: "cmat_track", name: "Магнитный трек встраиваемый 48V + адаптер питания", unit: "м.п.", price: 2400, rule: "Комплектующие трековой системы", volatile: true },
+          { id: "cmat_cable", name: "Кабель разводки освещения ВВГнг-LS 3×1.5 + клеммы WAGO", unit: "м.п.", price: 85, rule: "Подводка к светильникам", volatile: true }
         ]
       },
       hvac: {
         id: "hvac",
         icon: "❄️",
         shortName: "Кондиционеры",
-        title: "Смета на монтаж систем кондиционирования",
-        subtitle: "Кондиционеры и вентиляция • Трассы, блоки, вакуумирование",
+        title: "Смета на монтаж кондиционеров и вентиляции",
+        subtitle: "Климат и вентиляция • 18 видов работ и 11 групп расходников",
         gost: "Гарантия на монтаж и герметичность трассы: 3 года",
-        hasPanelStrip: false,
         hasDiamondWear: true,
         works: [
           { id: "ac_01", stage: 1, cat: "Монтаж", name: "Стандартный монтаж сплит-системы 07–09 BTU (трасса до 3м)", unit: "компл.", price: 11500 },
           { id: "ac_02", stage: 1, cat: "Монтаж", name: "Стандартный монтаж сплит-системы 12–18 BTU", unit: "компл.", price: 14500 },
-          { id: "ac_03", stage: 1, cat: "Монтаж", name: "Монтаж мульти-сплит системы (1 наружный + 2–3 внутренних)", unit: "компл.", price: 26000 },
-          { id: "ac_04", stage: 1, cat: "Трасса", name: "Прокладка фреоновой трассы сверх стандарта (медь + дренаж)", unit: "м.п.", price: 1400 },
-          { id: "ac_05", stage: 1, cat: "Штробление", name: "Штробление стены в бетоне под трассу кондиционера 60×60", unit: "м.п.", price: 1600 },
-          { id: "ac_06", stage: 1, cat: "Штробление", name: "Штробление стены в газоблоке / кирпиче под трассу", unit: "м.п.", price: 950 },
-          { id: "ac_07", stage: 1, cat: "Отверстия", name: "Бурение дополнительного сквозного отверстия d45–55 мм", unit: "шт.", price: 1200 },
-          { id: "ac_08", stage: 2, cat: "Навеска", name: "Второй этап: навеска внутреннего блока, вакуумирование, пуск", unit: "шт.", price: 4500 },
-          { id: "ac_09", stage: 2, cat: "Дренаж", name: "Установка дренажной помпы (насоса отвода конденсата)", unit: "шт.", price: 3500 },
-          { id: "ac_10", stage: 2, cat: "Высотные", name: "Установка наружного блока на вентилируемый фасад / корзину", unit: "шт.", price: 4000 }
+          { id: "ac_03", stage: 1, cat: "Монтаж", name: "Стандартный монтаж сплит-системы 24–36 BTU (коммерция)", unit: "компл.", price: 21000 },
+          { id: "ac_04", stage: 1, cat: "Мульти", name: "Монтаж мульти-сплит системы (1 наружный + 2–4 внутренних)", unit: "компл.", price: 26000 },
+          { id: "ac_05", stage: 1, cat: "Трасса", name: "Прокладка фреоновой трассы сверх стандарта (медь + дренаж)", unit: "м.п.", price: 1400 },
+          { id: "ac_06", stage: 1, cat: "Штробление", name: "Штробление стены в бетоне под трассу 60×60 мм", unit: "м.п.", price: 1600 },
+          { id: "ac_07", stage: 1, cat: "Штробление", name: "Штробление стены в кирпиче / газоблоке под трассу", unit: "м.п.", price: 950 },
+          { id: "ac_08", stage: 1, cat: "Отверстия", name: "Алмазное бурение сквозного отверстия d45–55 мм", unit: "шт.", price: 1200 },
+          { id: "ac_09", stage: 1, cat: "Дренаж", name: "Врезка дренажа в канализацию с сифоном с сухим затвором", unit: "шт.", price: 3200 },
+          { id: "ac_10", stage: 1, cat: "Высотные", name: "Монтаж наружного блока в корзину ЖК / на вентфасад", unit: "шт.", price: 4500 },
+          { id: "ac_11", stage: 1, cat: "Высотные", name: "Высотные работы (промышленный альпинист / автовышка)", unit: "услуга", price: 8500 },
+          { id: "ac_12", stage: 2, cat: "2-й этап", name: "Навеска внутреннего блока (после ремонта), вакуумирование, пуск", unit: "шт.", price: 4500 },
+          { id: "ac_13", stage: 2, cat: "Дренаж", name: "Установка дренажной помпы (насоса отвода конденсата)", unit: "шт.", price: 3500 },
+          { id: "ac_14", stage: 2, cat: "Вентиляция", name: "Алмазное бурение и монтаж бризера / приточного клапана d132", unit: "шт.", price: 6500 },
+          { id: "ac_15", stage: 2, cat: "Короба", name: "Монтаж декоративного кабель-канала 60×60 мм", unit: "м.п.", price: 450 },
+          { id: "ac_16", stage: 2, cat: "Заправка", name: "Дозаправка хладагентом R32 / R410A (свыше базовой длины)", unit: "100 г", price: 600 },
+          { id: "ac_17", stage: 2, cat: "Сервис", name: "Опрессовка трассы сухим азотом (проверка герметичности)", unit: "трасса", price: 2500 },
+          { id: "ac_18", stage: 2, cat: "Сервис", name: "Демонтаж старой сплит-системы с сохранением фреона", unit: "компл.", price: 4500 }
         ],
         materials: [
-          { id: "acmat_pipe", name: "Труба медная 1/4 + 3/8 (ГОСТ) + теплоизоляция K-Flex + ПВС 5×1.5", unit: "м.п.", price: 980, rule: "По метражу трассы", volatile: true },
-          { id: "acmat_brack", name: "Кронштейны усиленные 450×450 + виброопоры + анкеры", unit: "компл.", price: 1450, rule: "1 компл. на каждый наружный блок", volatile: false },
-          { id: "acmat_dren", name: "Труба дренажная металлопласт / шланг d16 + тефлон-лента", unit: "м.п.", price: 140, rule: "По метражу трассы", volatile: false }
+          { id: "acmat_pipe", name: "Труба медная 1/4 + 3/8 (ГОСТ 0.76мм) + изоляция K-Flex + ПВС 5×1.5", unit: "м.п.", price: 980, rule: "По метражу фреоновой трассы", volatile: true },
+          { id: "acmat_pipe12", name: "Труба медная усиленная 1/4 + 1/2 (для 18–24 BTU) + K-Flex", unit: "м.п.", price: 1350, rule: "Для мощных сплит-систем", volatile: true },
+          { id: "acmat_brack", name: "Кронштейны усиленные 450×450 + виброопоры + анкер-болты", unit: "компл.", price: 1450, rule: "1 компл. на наружный блок", volatile: false },
+          { id: "acmat_dren", name: "Труба дренажная металлопласт d16 / спиральный шланг + тефлон-лента", unit: "м.п.", price: 140, rule: "По метражу трассы", volatile: false },
+          { id: "acmat_siphon", name: "Сифон скрытого монтажа с сухим шариковым затвором (McAlpine / Vecamco)", unit: "шт.", price: 2950, rule: "При сливе в канализацию", volatile: false },
+          { id: "acmat_pump", name: "Дренажная помпа проточная (Sauermann / Aspen Mini Orange)", unit: "шт.", price: 8900, rule: "Принудительный отвод конденсата", volatile: true },
+          { id: "acmat_box", name: "Декоративный короб ПВХ 60×60 + углы и заглушки", unit: "м.п.", price: 420, rule: "Для открытой прокладки", volatile: false },
+          { id: "acmat_winter", name: "Зимний комплект (подогрев картера, дренажа, регулятор давления)", unit: "компл.", price: 9500, rule: "Работа на охлаждение до −30°C", volatile: false },
+          { id: "acmat_visor", name: "Защитный козырёк / антивандальная решётка наружного блока", unit: "шт.", price: 3800, rule: "Защита от сосулек и наледи", volatile: false },
+          { id: "acmat_freon", name: "Хладагент R32 / R410A (дополнительная заправка трассы)", unit: "100 г", price: 450, rule: "На каждый метр трассы > 5м", volatile: true },
+          { id: "acmat_unit", name: "Сплит-система инверторная (оборудование под заказ)", unit: "компл.", price: 42000, rule: "При поставке техники под ключ", volatile: true }
         ]
       },
       windows: {
         id: "windows",
         icon: "🪟",
-        shortName: "Окна ПВХ",
-        title: "Смета на монтаж окон ПВХ и отделку откосов",
-        subtitle: "Окна и балконы • Монтаж по ГОСТ 30971, откосы, подоконники",
+        shortName: "Окна и балконы",
+        title: "Смета на монтаж окон, алюминиевых конструкций и откосов",
+        subtitle: "Окна ПВХ и алюминий • 18 видов работ и 14 видов конструкций и расходников",
         gost: "Монтаж по ГОСТ 30971-2012 • Гарантия: 5 лет",
-        hasPanelStrip: false,
         hasDiamondWear: false,
         works: [
-          { id: "wn_01", stage: 1, cat: "Демонтаж", name: "Демонтаж старого деревянного / ПВХ окна с выносом", unit: "м²", price: 650 },
-          { id: "wn_02", stage: 1, cat: "Монтаж", name: "Монтаж окна ПВХ в кирпичном / панельном доме", unit: "м²", price: 1850 },
-          { id: "wn_03", stage: 1, cat: "Монтаж", name: "Монтаж балконного блока / остекления лоджии", unit: "м²", price: 2100 },
-          { id: "wn_04", stage: 1, cat: "Монтаж", name: "Монтаж окна по ГОСТ (ПСУЛ + паро- и гидроизоляция)", unit: "м.п.", price: 450 },
-          { id: "wn_05", stage: 2, cat: "Отделка", name: "Установка подоконника ПВХ (Danke / Crystallit / стандарт)", unit: "м.п.", price: 950 },
-          { id: "wn_06", stage: 2, cat: "Отделка", name: "Установка наружного металлического отлива с герметизацией", unit: "м.п.", price: 550 },
-          { id: "wn_07", stage: 2, cat: "Отделка", name: "Отделка внутренних откосов сэндвич-панелью 10 мм", unit: "м.п.", price: 1100 },
-          { id: "wn_08", stage: 2, cat: "Сервис", name: "Регулировка фурнитуры створки и замена уплотнителя", unit: "шт.", price: 900 },
-          { id: "wn_09", stage: 2, cat: "Допы", name: "Установка москитной сетки / детского замка", unit: "шт.", price: 650 }
+          { id: "wn_01", stage: 1, cat: "Демонтаж", name: "Демонтаж старого деревянного / ПВХ окна с выносом на площадку", unit: "м²", price: 650 },
+          { id: "wn_02", stage: 1, cat: "Монтаж ПВХ", name: "Монтаж окна ПВХ в кирпичном / панельном доме", unit: "м²", price: 1850 },
+          { id: "wn_03", stage: 1, cat: "Монтаж ПВХ", name: "Монтаж балконного блока (окно + балконная дверь)", unit: "м²", price: 2100 },
+          { id: "wn_04", stage: 1, cat: "Алюминий", name: "Монтаж тёплого алюминиевого остекления / витража (Alutech / Schuco)", unit: "м²", price: 3400 },
+          { id: "wn_05", stage: 1, cat: "Алюминий", name: "Монтаж холодного раздвижного остекления балкона (Provedal)", unit: "м²", price: 2200 },
+          { id: "wn_06", stage: 1, cat: "Порталы", name: "Монтаж панорамного раздвижного портала (PSK / HS-портал)", unit: "м²", price: 4500 },
+          { id: "wn_07", stage: 1, cat: "ГОСТ", name: "Монтаж оконного шва по ГОСТ 30971 (ПСУЛ + паро- и гидроизоляция)", unit: "м.п.", price: 450 },
+          { id: "wn_08", stage: 1, cat: "Балкон", name: "Усиление парапета / кладка пеноблока под остекление лоджии", unit: "м.п.", price: 2400 },
+          { id: "wn_09", stage: 1, cat: "Балкон", name: "Установка верхнего козырька и нащельников с герметизацией", unit: "м.п.", price: 650 },
+          { id: "wn_10", stage: 2, cat: "Отделка", name: "Установка подоконника ПВХ (Danke / Crystallit / стандарт)", unit: "м.п.", price: 950 },
+          { id: "wn_11", stage: 2, cat: "Отделка", name: "Установка наружного металлического отлива с шумоизоляцией", unit: "м.п.", price: 550 },
+          { id: "wn_12", stage: 2, cat: "Отделка", name: "Отделка внутренних откосов сэндвич-панелью 10 мм с жидким пластиком", unit: "м.п.", price: 1100 },
+          { id: "wn_13", stage: 2, cat: "Стеклопакет", name: "Замена стеклопакета на энергосберегающий / мультифункциональный", unit: "шт.", price: 2500 },
+          { id: "wn_14", stage: 2, cat: "Сервис", name: "Регулировка фурнитуры створки и смазка механизмов", unit: "шт.", price: 900 },
+          { id: "wn_15", stage: 2, cat: "Сервис", name: "Замена контурного уплотнителя по периметру створки и рамы", unit: "м.п.", price: 280 },
+          { id: "wn_16", stage: 2, cat: "Допы", name: "Установка москитной сетки (стандарт / Антикошка / плиссе)", unit: "шт.", price: 650 },
+          { id: "wn_17", stage: 2, cat: "Допы", name: "Установка детского замка безопасности / гребёнки / приточного клапана", unit: "шт.", price: 750 },
+          { id: "wn_18", stage: 2, cat: "Утепление", name: "Комплексное утепление лоджии Пеноплексом + фольгоизолон", unit: "м²", price: 1450 }
         ],
         materials: [
-          { id: "wmat_foam", name: "Профессиональная монтажная пена (зимняя/всесезонная) + анкеры", unit: "компл.", price: 950, rule: "На каждые 2 м² остекления", volatile: false },
-          { id: "wmat_tape", name: "Лента ПСУЛ + пароизоляция + герметик Стиз-А/Б", unit: "м.п.", price: 210, rule: "По периметру монтажа по ГОСТ", volatile: false },
-          { id: "wmat_sand", name: "Сэндвич-панель ПВХ 10 мм + F-профиль + жидкий пластик Cosmofen", unit: "м.п.", price: 680, rule: "По метражу откосов", volatile: true }
+          { id: "wmat_pvc_energy", name: "Окно ПВХ 70 мм (Rehau / Veka) с 2-кам. энергосберегающим стеклопакетом (И-стекло)", unit: "м²", price: 11500, rule: "Тёплое жилое остекление", volatile: true },
+          { id: "wmat_pvc_multi", name: "Окно ПВХ 76–80 мм с мультифункциональным стеклопакетом (повышенная теплоотдача + солнцезащита)", unit: "м²", price: 14200, rule: "Макс. теплосбережение (зима/лето)", volatile: true },
+          { id: "wmat_pvc_std", name: "Окно ПВХ 60 мм с 1-камерным стандартным стеклопакетом", unit: "м²", price: 8200, rule: "Эконом / нежилые помещения", volatile: true },
+          { id: "wmat_alu_warm", name: "Тёплая алюминиевая конструкция с терморазрывом (Alutech ALT W72 / витраж)", unit: "м²", price: 26500, rule: "Панорамные и фасадные проёмы", volatile: true },
+          { id: "wmat_alu_cold", name: "Холодное раздвижное алюминиевое остекление балкона (Provedal C640)", unit: "м²", price: 7800, rule: "Лёгкое остекление балконов", volatile: true },
+          { id: "wmat_glass_thermal", name: "Стеклопакет с повышенной теплоотдачей (2-кам. с аргоном, теплой рамкой и Low-E покрытием)", unit: "м²", price: 5900, rule: "Отдельная замена стеклопакета", volatile: true },
+          { id: "wmat_glass_triplex", name: "Стеклопакет шумоизоляционный акустический (Триплекс 3.3.1 + разная дистанция)", unit: "м²", price: 7600, rule: "Окна на шумный проспект", volatile: true },
+          { id: "wmat_sill", name: "Подоконник премиум с акриловым покрытием (Danke / Crystallit / Moeller)", unit: "м.п.", price: 2400, rule: "По ширине оконного проёма", volatile: false },
+          { id: "wmat_otliv", name: "Отлив наружный оцинкованный с полимерным покрытием + торцевые заглушки", unit: "м.п.", price: 520, rule: "По ширине проёма", volatile: false },
+          { id: "wmat_sand", name: "Сэндвич-панель ПВХ 10 мм + стартовый/F-профиль + жидкий пластик Cosmofen", unit: "м.п.", price: 680, rule: "По периметру откосов", volatile: true },
+          { id: "wmat_foam", name: "Профессиональная монтажная пена + анкерные пластины + опорные клинья", unit: "компл.", price: 950, rule: "На каждые 2 м² остекления", volatile: false },
+          { id: "wmat_tape", name: "Комплект лент ГОСТ (ПСУЛ + пароизоляция + гидроизоляция + герметик Стиз-А/Б)", unit: "м.п.", price: 240, rule: "По периметру шва ГОСТ", volatile: false },
+          { id: "wmat_mosq", name: "Москитная сетка рамочная (Антипыль / Антикошка) + крепления Z-образные", unit: "шт.", price: 1850, rule: "На открывающиеся створки", volatile: false },
+          { id: "wmat_seal", name: "Уплотнитель EPDM / Schlegel Q-Lon + детский замок с ключом (BSL)", unit: "компл.", price: 1350, rule: "Фурнитура и безопасность", volatile: false }
         ]
       },
       tiler: {
@@ -726,26 +790,40 @@
         icon: "🧱",
         shortName: "Плиточник",
         title: "Смета на плиточные и облицовочные работы",
-        subtitle: "Плиточник • Керамогранит, запил 45°, гидроизоляция, затирка",
+        subtitle: "Плиточник • 18 видов работ и 10 групп материалов",
         gost: "Работы по СП 71.13330 • Гарантия: 3 года",
-        hasPanelStrip: false,
         hasDiamondWear: true,
         works: [
           { id: "tl_01", stage: 1, cat: "Подготовка", name: "Грунтование и обмазочная гидроизоляция стен/пола в 2 слоя", unit: "м²", price: 550 },
           { id: "tl_02", stage: 1, cat: "Подготовка", name: "Выравнивание стен цементной штукатуркой по маякам", unit: "м²", price: 900 },
-          { id: "tl_03", stage: 1, cat: "Укладка", name: "Укладка керамической плитки (стены / пол, стандарт)", unit: "м²", price: 2100 },
-          { id: "tl_04", stage: 1, cat: "Укладка", name: "Укладка керамогранита (60×60 / 120×60 см)", unit: "м²", price: 2800 },
-          { id: "tl_05", stage: 1, cat: "Резка", name: "Запил торца керамогранита под угол 45° (заусовка)", unit: "м.п.", price: 1400 },
-          { id: "tl_06", stage: 1, cat: "Резка", name: "Сверление отверстия в керамограните алмазной коронкой", unit: "шт.", price: 550 },
-          { id: "tl_07", stage: 2, cat: "Затирка", name: "Затирка швов цементной затиркой (Ceresit / Litokol)", unit: "м²", price: 400 },
-          { id: "tl_08", stage: 2, cat: "Затирка", name: "Затирка швов двухкомпонентной эпоксидной затиркой", unit: "м²", price: 1100 },
-          { id: "tl_09", stage: 2, cat: "Допы", name: "Установка и облицовка скрытого люка-невидимки", unit: "шт.", price: 4500 },
-          { id: "tl_10", stage: 2, cat: "Допы", name: "Герметизация примыканий ванны/углов санитарным силиконом", unit: "м.п.", price: 350 }
+          { id: "tl_03", stage: 1, cat: "Подготовка", name: "Устройство наливного пола / цементной стяжки в санузле", unit: "м²", price: 750 },
+          { id: "tl_04", stage: 1, cat: "Короба", name: "Монтаж сантехнического короба из влагостойкого ГКЛВ / аквапанели", unit: "м.п.", price: 2200 },
+          { id: "tl_05", stage: 1, cat: "Укладка", name: "Укладка керамической плитки (стены / пол, стандарт)", unit: "м²", price: 2100 },
+          { id: "tl_06", stage: 1, cat: "Укладка", name: "Укладка керамогранита среднего формата (60×60 / 120×60 см)", unit: "м²", price: 2800 },
+          { id: "tl_07", stage: 1, cat: "Укладка", name: "Укладка крупноформатного керамогранита (свыше 120×60 см)", unit: "м²", price: 4200 },
+          { id: "tl_08", stage: 1, cat: "Укладка", name: "Укладка мозаики / мелкоформатной плитки (кабанчик / ёлочка)", unit: "м²", price: 3400 },
+          { id: "tl_09", stage: 1, cat: "Укладка", name: "Укладка кухонного фартука из керамогранита", unit: "м²", price: 3200 },
+          { id: "tl_10", stage: 1, cat: "Поддон", name: "Устройство душевого поддона в строительном исполнении с уклоном и трапом", unit: "шт.", price: 14500 },
+          { id: "tl_11", stage: 1, cat: "Резка", name: "Запил торца керамогранита под угол 45° (заусовка + шлифовка)", unit: "м.п.", price: 1400 },
+          { id: "tl_12", stage: 1, cat: "Резка", name: "Сверление технологического отверстия в керамограните алмазной коронкой", unit: "шт.", price: 550 },
+          { id: "tl_13", stage: 1, cat: "Резка", name: "Изготовление и облицовка встроенной полки / ниши в душевой", unit: "шт.", price: 5500 },
+          { id: "tl_14", stage: 2, cat: "Затирка", name: "Затирка швов цементной затиркой (Ceresit / Litokol / Mapei)", unit: "м²", price: 400 },
+          { id: "tl_15", stage: 2, cat: "Затирка", name: "Затирка швов двухкомпонентной эпоксидной затиркой", unit: "м²", price: 1150 },
+          { id: "tl_16", stage: 2, cat: "Допы", name: "Установка и облицовка скрытого люка-невидимки под плитку", unit: "шт.", price: 4500 },
+          { id: "tl_17", stage: 2, cat: "Допы", name: "Монтаж декоративного металлического / латунного профиля-раскладки", unit: "м.п.", price: 550 },
+          { id: "tl_18", stage: 2, cat: "Допы", name: "Герметизация примыканий ванны и углов санитарным силиконом", unit: "м.п.", price: 350 }
         ],
         materials: [
-          { id: "tmat_glue", name: "Клей плиточный усиленный C2TE S1 (мешок 25 кг)", unit: "меш.", price: 1150, rule: "1 мешок на 4 м² плитки", volatile: false },
-          { id: "tmat_svp", name: "Система выравнивания плитки СВП (зажимы + клинья) + грунт", unit: "компл.", price: 90, rule: "На каждый м² укладки", volatile: false },
-          { id: "tmat_hydro", name: "Гидроизоляция эластичная + гидроизоляционная лента углов", unit: "м²", price: 420, rule: "По площади гидроизоляции", volatile: false }
+          { id: "tmat_glue", name: "Клей плиточный усиленный C2TE S1 (мешок 25 кг, Ceresit CM16 / Litokol K80)", unit: "меш.", price: 1250, rule: "1 мешок на 4 м² плитки", volatile: false },
+          { id: "tmat_svp", name: "Система выравнивания плитки СВП (зажимы + клинья) + крестики", unit: "компл.", price: 95, rule: "На каждый м² укладки", volatile: false },
+          { id: "tmat_hydro", name: "Гидроизоляция эластичная (Ceresit CL51 / Weber.tec 822) + угловая лента", unit: "м²", price: 420, rule: "По площади гидроизоляции", volatile: false },
+          { id: "tmat_primer", name: "Грунтовка глубокого проникновения / Бетоноконтакт (канистра 10 л)", unit: "кан.", price: 1450, rule: "Подготовка основания", volatile: false },
+          { id: "tmat_grout_cem", name: "Затирка цементная водоотталкивающая (ведро 2 кг)", unit: "шт.", price: 850, rule: "На 6–8 м² облицовки", volatile: false },
+          { id: "tmat_grout_epox", name: "Затирка эпоксидная 2-комп. (Litokol Starlike EVO 2.5 кг) + смывка", unit: "компл.", price: 4600, rule: "На 10–12 м² + углы", volatile: true },
+          { id: "tmat_silicone", name: "Герметик силиконовый санитарный в цвет затирки (Ceresit CS25 / Mapei)", unit: "туба", price: 950, rule: "Швы ванны и внутренние углы", volatile: false },
+          { id: "tmat_hatch", name: "Люк-невидимка под плитку нажимной (Практика / Revizor 40×60)", unit: "шт.", price: 6800, rule: "Доступ к сантех. узлу", volatile: false },
+          { id: "tmat_gkl", name: "Влагостойкий ГКЛВ Knauf / Аквапанель + оцинкованный профиль 27×28", unit: "компл.", price: 1850, rule: "На 1 м.п. короба", volatile: false },
+          { id: "tmat_trap", name: "Щелевой душевой трап из нерж. стали с сухим затвором (AlcaPlast / TECE)", unit: "шт.", price: 9800, rule: "Для строительного поддона", volatile: true }
         ]
       },
       plumber: {
@@ -753,25 +831,41 @@
         icon: "🔧",
         shortName: "Сантехник",
         title: "Смета на сантехнические работы и отопление",
-        subtitle: "Сантехника и отопление • Коллекторы, PEX, инсталляции, радиаторы",
+        subtitle: "Сантехника и отопление • 18 видов работ и 11 групп материалов",
         gost: "Опрессовка системы давлением 6 бар • Гарантия: 5 лет",
-        hasPanelStrip: false,
         hasDiamondWear: true,
         works: [
-          { id: "pl_01", stage: 1, cat: "Водопровод", name: "Монтаж водорозетки (точка ХВС/ГВС + канализация)", unit: "точка", price: 2800 },
-          { id: "pl_02", stage: 1, cat: "Узел ввода", name: "Сборка коллекторного узла (редукторы, фильтры, защита от протечек)", unit: "узел", price: 16500 },
-          { id: "pl_03", stage: 1, cat: "Штробление", name: "Штробление стен в бетоне под трубы водопровода/канализации", unit: "м.п.", price: 950 },
-          { id: "pl_04", stage: 1, cat: "Инсталляция", name: "Монтаж и подключение рамы инсталляции унитаза", unit: "шт.", price: 6500 },
-          { id: "pl_05", stage: 1, cat: "Отопление", name: "Монтаж и обвязка радиатора отопления (лучевая схема PEX)", unit: "шт.", price: 5500 },
-          { id: "pl_06", stage: 1, cat: "Отопление", name: "Укладка водяного тёплого пола (труба PEX-a + подложка)", unit: "м²", price: 950 },
-          { id: "pl_07", stage: 2, cat: "Чистовая", name: "Установка ванны / душевого поддона с сифоном", unit: "шт.", price: 5500 },
-          { id: "pl_08", stage: 2, cat: "Чистовая", name: "Установка унитаза / тумбы с раковиной и смесителем", unit: "шт.", price: 3200 },
-          { id: "pl_09", stage: 2, cat: "Чистовая", name: "Установка и подключение полотенцесушителя / бойлера", unit: "шт.", price: 3800 }
+          { id: "pl_01", stage: 1, cat: "Водопровод", name: "Монтаж водорозетки (точка ХВС/ГВС + вывод канализации)", unit: "точка", price: 2800 },
+          { id: "pl_02", stage: 1, cat: "Узел ввода", name: "Сборка коллекторного узла ввода (фильтры, редукторы, коллекторы)", unit: "узел", price: 16500 },
+          { id: "pl_03", stage: 1, cat: "Узел ввода", name: "Установка системы защиты от протечек (Нептун / Гидролок)", unit: "компл.", price: 5500 },
+          { id: "pl_04", stage: 1, cat: "Штробление", name: "Штробление стен в бетоне под трубы водопровода и канализации", unit: "м.п.", price: 950 },
+          { id: "pl_05", stage: 1, cat: "Штробление", name: "Штробление стен в кирпиче / газоблоке под трубы", unit: "м.п.", price: 600 },
+          { id: "pl_06", stage: 1, cat: "Инсталляция", name: "Монтаж и подключение рамы инсталляции подвесного унитаза", unit: "шт.", price: 6500 },
+          { id: "pl_07", stage: 1, cat: "Скрытый", name: "Монтаж встраиваемого смесителя / гигиенического душа (iBox)", unit: "шт.", price: 4800 },
+          { id: "pl_08", stage: 1, cat: "Отопление", name: "Монтаж и лучевая обвязка радиатора отопления из стены", unit: "шт.", price: 5500 },
+          { id: "pl_09", stage: 1, cat: "Отопление", name: "Укладка водяного тёплого пола (труба PEX-a + подложка + коллектор)", unit: "м²", price: 950 },
+          { id: "pl_10", stage: 1, cat: "Котельная", name: "Обвязка настенного газового / электрического котла с БКН", unit: "узел", price: 28000 },
+          { id: "pl_11", stage: 1, cat: "Канализация", name: "Переборка стояка канализации с заменой тройника и шумоизоляцией", unit: "стояк", price: 7500 },
+          { id: "pl_12", stage: 2, cat: "Чистовая", name: "Установка ванны (акрил / чугун / литьевой мрамор) с сифоном", unit: "шт.", price: 5500 },
+          { id: "pl_13", stage: 2, cat: "Чистовая", name: "Установка душевого ограждения / стеклянной перегородки", unit: "шт.", price: 6500 },
+          { id: "pl_14", stage: 2, cat: "Чистовая", name: "Навеска подвесного унитаза на инсталляцию и монтаж кнопки смыва", unit: "шт.", price: 3200 },
+          { id: "pl_15", stage: 2, cat: "Чистовая", name: "Установка тумбы с раковиной, сифоном и смесителем", unit: "шт.", price: 3800 },
+          { id: "pl_16", stage: 2, cat: "Чистовая", name: "Установка и подключение накопительного / проточного водонагревателя", unit: "шт.", price: 4200 },
+          { id: "pl_17", stage: 2, cat: "Чистовая", name: "Установка водяного полотенцесушителя с запорной арматурой", unit: "шт.", price: 4500 },
+          { id: "pl_18", stage: 2, cat: "Техника", name: "Подключение стиральной / посудомоечной машины и фильтра питьевой воды", unit: "шт.", price: 2200 }
         ],
         materials: [
-          { id: "pmat_pex", name: "Труба сшитый полиэтилен PEX-a 16×2.2 (Rehau/Stout) + энергофлекс", unit: "м.п.", price: 260, rule: "5 м на каждую точку", volatile: true },
-          { id: "pmat_fit", name: "Аксиальные фитинги, водорозетки, канализация Ostendorf", unit: "компл.", price: 1450, rule: "1 компл. на каждую точку", volatile: true },
-          { id: "pmat_coll", name: "Коллекторы FAR/Stout + шаровые краны + фильтры + редукторы", unit: "узел", price: 24500, rule: "На каждый узел ввода", volatile: true }
+          { id: "pmat_pex", name: "Труба сшитый полиэтилен PEX-a 16×2.2 (Rehau / Stout) + энергофлекс", unit: "м.п.", price: 260, rule: "5 м на каждую точку", volatile: true },
+          { id: "pmat_fit", name: "Аксиальные фитинги (латунь), водорозетки, гильзы, крепёж", unit: "компл.", price: 1450, rule: "1 компл. на каждую точку", volatile: true },
+          { id: "pmat_kan", name: "Трубы и отводы бесшумной канализации Ostendorf / Rehau Raupiano d50/110", unit: "компл.", price: 1200, rule: "Разводка слива по точкам", volatile: false },
+          { id: "pmat_coll", name: "Коллекторы FAR / Stout + редукторы давления + самопромывные фильтры 100 мкм", unit: "узел", price: 26500, rule: "На каждый узел ввода", volatile: true },
+          { id: "pmat_neptun", name: "Комплект защиты от протечек с кранами 1/2\" и датчиками (Нептун / Gidrolock)", unit: "компл.", price: 19500, rule: "Узел ввода ХВС/ГВС", volatile: true },
+          { id: "pmat_inst", name: "Рама инсталляции для подвесного унитаза (Geberit / TECE / Grohe)", unit: "шт.", price: 22500, rule: "При поставке оборудования", volatile: true },
+          { id: "pmat_rad", name: "Узел нижнего подключения радиатора + термоголовка (Oventrop / Stout)", unit: "компл.", price: 4200, rule: "На каждый радиатор", volatile: false },
+          { id: "pmat_floor", name: "Маты теплоизоляционные с бобышками + демпферная лента (водяной пол)", unit: "м²", price: 780, rule: "По площади тёплого пола", volatile: false },
+          { id: "pmat_mag", name: "Магистральный фильтр тонкой очистки Гейзер Тайфун / BB10 (нерж.)", unit: "шт.", price: 8900, rule: "Очистка воды на квартиру", volatile: false },
+          { id: "pmat_valve", name: "Краны шаровые вводные усиленные (Bugatti / Oventrop 1/2\" или 3/4\")", unit: "шт.", price: 1350, rule: "На стояки ХВС/ГВС", volatile: false },
+          { id: "pmat_seal", name: "Анаэробный герметик, лён + паста Unipak, обратные клапаны", unit: "компл.", price: 1600, rule: "Расходники сборки узла", volatile: false }
         ]
       }
     };
@@ -789,6 +883,43 @@
       return PROFESSIONS_DB[currentProfId] || PROFESSIONS_DB.electrician;
     }
 
+    // ЗАГРУЗКА И СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЬСКИХ РАБОТ И МАТЕРИАЛОВ В БИБЛИОТЕКЕ
+    function loadCustomCatalogAdditions() {
+      try {
+        const raw = localStorage.getItem(STORAGE_CUSTOM_CATALOG_KEY);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        Object.keys(saved).forEach(profId => {
+          if (!PROFESSIONS_DB[profId]) return;
+          const entry = saved[profId];
+          if (Array.isArray(entry.works)) {
+            entry.works.forEach(w => {
+              if (!PROFESSIONS_DB[profId].works.some(x => x.id === w.id)) {
+                PROFESSIONS_DB[profId].works.push(w);
+              }
+            });
+          }
+          if (Array.isArray(entry.materials)) {
+            entry.materials.forEach(m => {
+              if (!PROFESSIONS_DB[profId].materials.some(x => x.id === m.id)) {
+                PROFESSIONS_DB[profId].materials.push(m);
+              }
+            });
+          }
+        });
+      } catch (e) {}
+    }
+
+    function saveCustomCatalogItem(profId, type, item) {
+      try {
+        const raw = localStorage.getItem(STORAGE_CUSTOM_CATALOG_KEY);
+        const saved = raw ? JSON.parse(raw) : {};
+        if (!saved[profId]) saved[profId] = { works: [], materials: [] };
+        saved[profId][type].push(item);
+        localStorage.setItem(STORAGE_CUSTOM_CATALOG_KEY, JSON.stringify(saved));
+      } catch (e) {}
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       try {
         if (window.Telegram && window.Telegram.WebApp) {
@@ -797,6 +928,7 @@
         }
       } catch (e) {}
 
+      loadCustomCatalogAdditions();
       loadMasterProfile();
       loadHistoryFromStorage();
       document.getElementById('doc-date').textContent = 'Дата: ' + new Date().toLocaleDateString('ru-RU');
@@ -844,16 +976,15 @@
 
       document.getElementById('header-prof-icon').textContent = prof.icon;
       document.getElementById('header-prof-subtitle').textContent = prof.subtitle;
-      document.getElementById('active-prof-count').textContent = `Библиотека: ${prof.works.length} работ`;
+      document.getElementById('active-prof-count').textContent = `${prof.works.length} работ • ${prof.materials.length} материалов`;
       document.getElementById('doc-gost-label').textContent = prof.gost;
-      document.getElementById('catalog-works-title').textContent = `Прайс-лист: ${prof.shortName}`;
-      document.getElementById('catalog-mats-title').textContent = `Расходники: ${prof.shortName}`;
+      document.getElementById('catalog-works-title').textContent = `Прайс-лист работ: ${prof.shortName} (${prof.works.length})`;
+      document.getElementById('catalog-mats-title').textContent = `Расходники и конструкции: ${prof.shortName} (${prof.materials.length})`;
 
-      // Показываем профильные тумблеры только для релевантных профессий
-      document.getElementById('panel-strip-toggle-row').classList.toggle('hidden', !prof.hasPanelStrip);
       document.getElementById('wear-toggle-row').classList.toggle('hidden', !prof.hasDiamondWear);
 
       populateWorkDropdown();
+      populateMaterialDropdown();
       renderCatalogTable();
       renderMaterialsCatalogTable();
 
@@ -878,9 +1009,7 @@
         if (!rawDataParam) return false;
 
         const payload = JSON.parse(decodeBase64UrlUtf8(rawDataParam));
-        if (payload.prof && PROFESSIONS_DB[payload.prof]) {
-          currentProfId = payload.prof;
-        }
+        if (payload.prof && PROFESSIONS_DB[payload.prof]) currentProfId = payload.prof;
         applyProfessionUI(currentProfId, false);
         const prof = getActiveProf();
 
@@ -904,7 +1033,7 @@
               currentEstimateItems.push({ id: found.id, qty: w.qty || 1 });
             } else if (w.name) {
               const customId = 'custom_w_' + Date.now() + '_' + i;
-              prof.works.push({ id: customId, stage: w.stage || 1, cat: "Доп. позиция", name: w.name, unit: w.unit || "шт.", price: w.price || 1000 });
+              prof.works.push({ id: customId, stage: w.stage || 1, cat: "Своя работа", name: w.name, unit: w.unit || "шт.", price: w.price || 1000 });
               currentEstimateItems.push({ id: customId, qty: w.qty || 1 });
             }
           });
@@ -948,15 +1077,21 @@
       const volatileBuffer = document.getElementById('copper-buffer-toggle').checked;
       const wearOn = prof.hasDiamondWear && document.getElementById('diamond-wear-toggle').checked;
 
-      function getPrice(matId) {
+      function getMat(matId) {
         const cat = prof.materials.find(m => m.id === matId);
-        let base = cat ? cat.price : 100;
-        if (volatileBuffer && cat && cat.volatile) base *= 1.07;
+        if (!cat) return null;
+        let base = cat.price;
+        if (volatileBuffer && cat.volatile) base *= 1.07;
         base *= (1 + marginPct / 100.0);
-        return Math.round(base);
+        return { name: cat.name, unit: cat.unit, price: Math.round(base) };
       }
 
       const list = [];
+      const pushMat = (matId, qty) => {
+        if (qty <= 0) return;
+        const m = getMat(matId);
+        if (m) list.push({ ...m, qty, isCustom: false });
+      };
       const qtyById = (ids) => currentEstimateItems.filter(i => ids.includes(i.id)).reduce((a, b) => a + b.qty, 0);
 
       if (currentProfId === 'electrician') {
@@ -967,64 +1102,75 @@
         const utp = qtyById(["el_09"]);
         const boxes = qtyById(["el_10"]);
         const mods = qtyById(["el_11"]) * 24 + qtyById(["el_12"]) * 36 + qtyById(["el_13"]) * 54;
-        if (pods > 0) list.push({ name: prof.materials[0].name, unit: "шт.", qty: pods, price: getPrice("mat_pod"), isCustom: false });
+        pushMat("mat_pod", pods);
         if (cable > 0) {
-          list.push({ name: prof.materials[1].name, unit: "м.п.", qty: Math.round(cable * 0.62), price: getPrice("mat_vvg25"), isCustom: false });
-          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: Math.round(cable * 0.38), price: getPrice("mat_vvg15"), isCustom: false });
-          list.push({ name: prof.materials[3].name, unit: "м.п.", qty: cable, price: getPrice("mat_gofra"), isCustom: false });
+          pushMat("mat_vvg25", Math.round(cable * 0.62));
+          pushMat("mat_vvg15", Math.round(cable * 0.38));
+          pushMat("mat_gofra", cable);
         }
-        if (utp > 0) list.push({ name: prof.materials[4].name, unit: "м.п.", qty: utp, price: getPrice("mat_utp"), isCustom: false });
-        if (boxes > 0) list.push({ name: prof.materials[5].name, unit: "компл.", qty: boxes, price: getPrice("mat_box"), isCustom: false });
-        if (mods > 0) list.push({ name: prof.materials[6].name, unit: "групп", qty: Math.max(6, Math.round(mods / 3)), price: getPrice("mat_auto"), isCustom: false });
+        pushMat("mat_utp", utp);
+        pushMat("mat_box", boxes);
+        if (mods > 0) pushMat("mat_auto", Math.max(6, Math.round(mods / 3)));
         if (wearOn && (cPods > 0 || cGrooves > 0)) {
-          list.push({ name: `Износ алмазных коронок и дисков (${cPods} тчк / ${cGrooves} м)`, unit: "компл.", qty: 1, price: cPods * 75 + cGrooves * 45, isCustom: false, isWear: true });
+          list.push({ name: `Износ алмазных коронок и дисков (${cPods} бетон. тчк / ${cGrooves} м)`, unit: "компл.", qty: 1, price: cPods * 75 + cGrooves * 45, isCustom: false, isWear: true });
         }
       } else if (currentProfId === 'ceilings') {
-        const area = qtyById(["cl_01", "cl_02"]);
-        const perim = qtyById(["cl_03", "cl_04", "cl_05"]);
-        const lights = qtyById(["cl_06", "cl_07"]);
-        if (area > 0) list.push({ name: prof.materials[0].name, unit: "м²", qty: area, price: getPrice("cmat_pvc"), isCustom: false });
-        if (perim > 0) {
-          list.push({ name: prof.materials[1].name, unit: "м.п.", qty: perim, price: getPrice("cmat_prof"), isCustom: false });
-          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: perim, price: getPrice("cmat_ins"), isCustom: false });
-        }
-        if (lights > 0) list.push({ name: prof.materials[3].name, unit: "компл.", qty: lights, price: getPrice("cmat_plat"), isCustom: false });
+        pushMat("cmat_pvc", qtyById(["cl_01"]));
+        pushMat("cmat_fabric", qtyById(["cl_02"]));
+        pushMat("cmat_prof", qtyById(["cl_04", "cl_07"]));
+        pushMat("cmat_kraab", qtyById(["cl_05"]));
+        pushMat("cmat_ins", qtyById(["cl_04"]));
+        pushMat("cmat_plat", qtyById(["cl_08", "cl_09"]));
+        pushMat("cmat_pk5", qtyById(["cl_12"]));
+        pushMat("cmat_led", qtyById(["cl_06", "cl_10"]));
+        pushMat("cmat_track", qtyById(["cl_11"]));
       } else if (currentProfId === 'hvac') {
-        const blocks = qtyById(["ac_01", "ac_02", "ac_03"]);
-        const trace = qtyById(["ac_04"]) + blocks * 3;
-        const grooves = qtyById(["ac_05"]);
-        if (trace > 0) {
-          list.push({ name: prof.materials[0].name, unit: "м.п.", qty: trace, price: getPrice("acmat_pipe"), isCustom: false });
-          list.push({ name: prof.materials[2].name, unit: "м.п.", qty: trace, price: getPrice("acmat_dren"), isCustom: false });
-        }
-        if (blocks > 0) list.push({ name: prof.materials[1].name, unit: "компл.", qty: blocks, price: getPrice("acmat_brack"), isCustom: false });
+        const blocks = qtyById(["ac_01", "ac_02", "ac_03", "ac_04"]);
+        const trace = qtyById(["ac_05"]) + blocks * 3;
+        const grooves = qtyById(["ac_06"]);
+        pushMat("acmat_pipe", trace);
+        pushMat("acmat_dren", trace);
+        pushMat("acmat_brack", blocks);
+        pushMat("acmat_siphon", qtyById(["ac_09"]));
+        pushMat("acmat_pump", qtyById(["ac_13"]));
+        pushMat("acmat_box", qtyById(["ac_15"]));
         if (wearOn && grooves > 0) list.push({ name: `Износ алмазных дисков штробореза (${grooves} м бетона)`, unit: "компл.", qty: 1, price: grooves * 95, isCustom: false, isWear: true });
       } else if (currentProfId === 'windows') {
-        const sqm = qtyById(["wn_02", "wn_03"]);
-        const gostM = qtyById(["wn_04"]);
-        const slopes = qtyById(["wn_07"]);
-        if (sqm > 0) list.push({ name: prof.materials[0].name, unit: "компл.", qty: Math.max(1, Math.ceil(sqm / 2)), price: getPrice("wmat_foam"), isCustom: false });
-        if (gostM > 0) list.push({ name: prof.materials[1].name, unit: "м.п.", qty: gostM, price: getPrice("wmat_tape"), isCustom: false });
-        if (slopes > 0) list.push({ name: prof.materials[2].name, unit: "м.п.", qty: slopes, price: getPrice("wmat_sand"), isCustom: false });
+        const pvcSqm = qtyById(["wn_02", "wn_03"]);
+        const aluWarmSqm = qtyById(["wn_04", "wn_06"]);
+        const aluColdSqm = qtyById(["wn_05"]);
+        const totalSqm = pvcSqm + aluWarmSqm + aluColdSqm;
+        pushMat("wmat_pvc_energy", pvcSqm);
+        pushMat("wmat_alu_warm", aluWarmSqm);
+        pushMat("wmat_alu_cold", aluColdSqm);
+        if (totalSqm > 0) pushMat("wmat_foam", Math.max(1, Math.ceil(totalSqm / 2)));
+        pushMat("wmat_tape", qtyById(["wn_07"]));
+        pushMat("wmat_sill", qtyById(["wn_10"]));
+        pushMat("wmat_otliv", qtyById(["wn_11"]));
+        pushMat("wmat_sand", qtyById(["wn_12"]));
+        pushMat("wmat_mosq", qtyById(["wn_16"]));
       } else if (currentProfId === 'tiler') {
-        const area = qtyById(["tl_03", "tl_04"]);
-        const hydro = qtyById(["tl_01"]);
-        const cuts = qtyById(["tl_05"]) + qtyById(["tl_06"]);
+        const area = qtyById(["tl_05", "tl_06", "tl_07", "tl_08", "tl_09"]);
         if (area > 0) {
-          list.push({ name: prof.materials[0].name, unit: "меш.", qty: Math.max(1, Math.ceil(area / 4)), price: getPrice("tmat_glue"), isCustom: false });
-          list.push({ name: prof.materials[1].name, unit: "компл.", qty: area, price: getPrice("tmat_svp"), isCustom: false });
+          pushMat("tmat_glue", Math.max(1, Math.ceil(area / 4)));
+          pushMat("tmat_svp", area);
         }
-        if (hydro > 0) list.push({ name: prof.materials[2].name, unit: "м²", qty: hydro, price: getPrice("tmat_hydro"), isCustom: false });
-        if (wearOn && cuts > 0) list.push({ name: `Износ алмазного диска / черепашек по керамограниту`, unit: "компл.", qty: 1, price: cuts * 80, isCustom: false, isWear: true });
+        pushMat("tmat_hydro", qtyById(["tl_01"]));
+        pushMat("tmat_hatch", qtyById(["tl_16"]));
+        pushMat("tmat_gkl", qtyById(["tl_04"]));
+        pushMat("tmat_trap", qtyById(["tl_10"]));
+        const cuts = qtyById(["tl_11"]) + qtyById(["tl_12"]);
+        if (wearOn && cuts > 0) list.push({ name: `Износ алмазного диска / коронок по керамограниту`, unit: "компл.", qty: 1, price: cuts * 80, isCustom: false, isWear: true });
       } else if (currentProfId === 'plumber') {
         const pts = qtyById(["pl_01"]);
-        const nodes = qtyById(["pl_02"]);
-        const grooves = qtyById(["pl_03"]);
-        if (pts > 0) {
-          list.push({ name: prof.materials[0].name, unit: "м.п.", qty: pts * 5, price: getPrice("pmat_pex"), isCustom: false });
-          list.push({ name: prof.materials[1].name, unit: "компл.", qty: pts, price: getPrice("pmat_fit"), isCustom: false });
-        }
-        if (nodes > 0) list.push({ name: prof.materials[2].name, unit: "узел", qty: nodes, price: getPrice("pmat_coll"), isCustom: false });
+        pushMat("pmat_pex", pts * 5);
+        pushMat("pmat_fit", pts);
+        pushMat("pmat_coll", qtyById(["pl_02"]));
+        pushMat("pmat_neptun", qtyById(["pl_03"]));
+        pushMat("pmat_inst", qtyById(["pl_06"]));
+        pushMat("pmat_rad", qtyById(["pl_08"]));
+        pushMat("pmat_floor", qtyById(["pl_09"]));
+        const grooves = qtyById(["pl_04"]);
         if (wearOn && grooves > 0) list.push({ name: `Износ алмазных дисков штробореза (${grooves} м бетона)`, unit: "компл.", qty: 1, price: grooves * 80, isCustom: false, isWear: true });
       }
 
@@ -1066,7 +1212,6 @@
         rooms: [...currentRoomsList],
         works: currentEstimateItems.map(i => ({ ...i })),
         materials: currentMaterialsList.map(m => ({ ...m })),
-        showPanelStrip: prof.hasPanelStrip && document.getElementById('panel-strip-toggle').checked,
         showPrepay: document.getElementById('prepay-toggle').checked,
         prepayPct: parseInt(document.getElementById('prepay-pct-slider').value, 10) || 30,
         splitStages: document.getElementById('split-stages-toggle').checked,
@@ -1090,9 +1235,7 @@
     function openHistoryEstimate(id, notify = true) {
       const rec = savedHistory.find(h => h.id === id);
       if (!rec) return;
-      if (rec.profId && PROFESSIONS_DB[rec.profId]) {
-        applyProfessionUI(rec.profId, false);
-      }
+      if (rec.profId && PROFESSIONS_DB[rec.profId]) applyProfessionUI(rec.profId, false);
       currentEstimateId = rec.id;
       docMode = rec.docMode || 'main';
       document.getElementById('doc-mode-select').value = docMode;
@@ -1101,7 +1244,6 @@
       currentRoomsList = Array.isArray(rec.rooms) ? [...rec.rooms] : [];
       currentEstimateItems = Array.isArray(rec.works) ? rec.works.map(w => ({ ...w })) : [];
       currentMaterialsList = Array.isArray(rec.materials) ? rec.materials.map(m => ({ ...m })) : [];
-      if (rec.showPanelStrip !== undefined) document.getElementById('panel-strip-toggle').checked = rec.showPanelStrip;
       if (rec.showPrepay !== undefined) {
         document.getElementById('prepay-toggle').checked = rec.showPrepay;
         document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !rec.showPrepay);
@@ -1115,30 +1257,22 @@
       if (notify) showToast('Открыта смета: ' + rec.object);
     }
 
-    function deleteHistoryEstimate(id) {
-      savedHistory = savedHistory.filter(h => h.id !== id);
-      persistHistory();
-      showToast('Смета удалена из архива');
-    }
+    function deleteHistoryEstimate(id) { savedHistory = savedHistory.filter(h => h.id !== id); persistHistory(); showToast('Удалено из архива'); }
 
     function renderHistoryList() {
       const container = document.getElementById('history-list');
       const emptyBox = document.getElementById('history-empty');
-      if (savedHistory.length === 0) {
-        emptyBox.classList.remove('hidden');
-        container.innerHTML = '';
-        return;
-      }
+      if (savedHistory.length === 0) { emptyBox.classList.remove('hidden'); container.innerHTML = ''; return; }
       emptyBox.classList.add('hidden');
       container.innerHTML = savedHistory.map(h => `
         <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex flex-col justify-between gap-3">
           <div>
             <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">${h.profIcon || '⚡'} ${h.profName || 'Электрик'} • ${h.docMode === 'dop' ? 'Доп' : 'Смета'}</span>
+              <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300">${h.profIcon || '⚡'} ${h.profName || 'Мастер'} • ${h.docMode === 'dop' ? 'Доп' : 'Смета'}</span>
               <span class="mono text-[11px] text-slate-400">${h.date}</span>
             </div>
             <div class="font-bold text-white text-sm mt-1">${h.object}</div>
-            <div class="text-xs text-slate-400 mt-1">Работ: ${h.worksCount} поз. • Расходников: ${h.materialsCount} поз.</div>
+            <div class="text-xs text-slate-400 mt-1">Работ: ${h.worksCount} поз. • Материалов: ${h.materialsCount} поз.</div>
           </div>
           <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2">
             <div class="mono text-base font-extrabold text-amber-400">${formatRub(h.grandTotal)} ₽</div>
@@ -1230,7 +1364,7 @@
         prof_title: prof.title,
         prof_gost: prof.gost,
         is_dop: (docMode === 'dop'),
-        show_panel_strip: prof.hasPanelStrip && document.getElementById('panel-strip-toggle').checked,
+        show_panel_strip: false,
         show_prepay: s.show_prepay,
         prepay_pct: s.prepay_pct,
         object: document.getElementById('client-object').value || 'Объект заказчика',
@@ -1286,11 +1420,7 @@
     }
 
     function onDocModeSelect() { docMode = document.getElementById('doc-mode-select').value; renderEstimate(); }
-    function togglePrepayUI() {
-      const on = document.getElementById('prepay-toggle').checked;
-      document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !on);
-      renderEstimate();
-    }
+    function togglePrepayUI() { document.getElementById('prepay-pct-wrap').classList.toggle('hidden', !document.getElementById('prepay-toggle').checked); renderEstimate(); }
     function syncPrepayPct(val) { document.getElementById('lbl-prepay-pct').textContent = val + '%'; renderEstimate(); }
 
     function toggleCoefficient(key) {
@@ -1317,10 +1447,30 @@
       renderEstimate();
     }
 
+    function populateMaterialDropdown() {
+      const sel = document.getElementById('add-mat-select');
+      sel.innerHTML = '';
+      getActiveProf().materials.forEach(mat => {
+        const opt = document.createElement('option');
+        opt.value = mat.id;
+        opt.textContent = `${mat.name} (${formatRub(mat.price)} ₽/${mat.unit})`;
+        sel.appendChild(opt);
+      });
+    }
+
+    function addSelectedMaterialFromCatalog() {
+      const matId = document.getElementById('add-mat-select').value;
+      const mat = getActiveProf().materials.find(m => m.id === matId);
+      if (!mat) return;
+      currentMaterialsList.push({ name: mat.name, unit: mat.unit, qty: 1, price: mat.price, isCustom: true });
+      renderEstimate();
+      showToast('Материал добавлен в смету');
+    }
+
     function addCustomMaterialManual() {
       const nameInput = document.getElementById('custom-mat-name');
       currentMaterialsList.push({
-        name: nameInput.value.trim() || "Дополнительный расходник",
+        name: nameInput.value.trim() || "Дополнительный материал",
         unit: document.getElementById('custom-mat-unit').value.trim() || "шт.",
         qty: Math.max(1, parseFloat(document.getElementById('custom-mat-qty').value) || 1),
         price: Math.max(0, parseFloat(document.getElementById('custom-mat-price').value) || 0),
@@ -1328,7 +1478,7 @@
       });
       nameInput.value = '';
       renderEstimate();
-      showToast('Расходник добавлен');
+      showToast('Материал добавлен в смету');
     }
 
     function stepWorkQty(idx, delta) {
@@ -1377,7 +1527,7 @@
       getActiveProf().works.forEach(item => {
         const opt = document.createElement('option');
         opt.value = item.id;
-        opt.textContent = `[Этап ${item.stage}] ${item.name} (${item.price} ₽/${item.unit})`;
+        opt.textContent = `[Этап ${item.stage}] ${item.name} (${formatRub(item.price)} ₽/${item.unit})`;
         sel.appendChild(opt);
       });
     }
@@ -1390,34 +1540,6 @@
       recalcAutoMaterialsKeepCustom();
       renderEstimate();
       showToast('Работа добавлена в смету');
-    }
-
-    function renderPanelLabelStrip() {
-      const prof = getActiveProf();
-      const section = document.getElementById('doc-panel-strip-section');
-      const grid = document.getElementById('doc-panel-strip-grid');
-      if (!prof.hasPanelStrip || !document.getElementById('panel-strip-toggle').checked || docMode === 'dop') {
-        section.classList.add('hidden');
-        return;
-      }
-      section.classList.remove('hidden');
-      const modules = [
-        { num: "QF1", title: "ВВОДНОЙ АВ", amp: "C50 2P", bg: "bg-rose-600 text-white" },
-        { num: "KV1", title: "РЕЛЕ НАПРЯЖ.", amp: "63А V/A", bg: "bg-amber-500 text-slate-950" },
-        { num: "QFD1", title: "УЗО ГРУППЫ 1", amp: "40А 30mA", bg: "bg-sky-600 text-white" },
-        { num: "QF2", title: "ВАРОЧНАЯ ПАН.", amp: "C32", bg: "bg-slate-800 text-white" },
-        { num: "QF3", title: "ДУХОВКА / ПММ", amp: "C16", bg: "bg-slate-700 text-white" },
-        { num: "QF4", title: "РОЗЕТКИ КУХНЯ", amp: "C16", bg: "bg-slate-700 text-white" },
-        { num: "QF5", title: "САНУЗЕЛ МОКР.", amp: "C16 АВДТ", bg: "bg-emerald-700 text-white" },
-        { num: "QF6", title: "СВЕТ ОБЩИЙ", amp: "C10", bg: "bg-amber-600 text-white" }
-      ];
-      grid.innerHTML = modules.map(m => `
-        <div class="border-r border-slate-300 last:border-r-0 flex flex-col justify-between">
-          <div class="${m.bg} font-bold py-0.5 text-[9px]">${m.num} • ${m.amp}</div>
-          <div class="py-2 px-1 font-extrabold text-slate-900 leading-tight text-[10px]">${m.title}</div>
-          <div class="bg-slate-100 text-slate-500 py-0.5 mono text-[9px]">230V~</div>
-        </div>
-      `).join('');
     }
 
     function renderEstimate() {
@@ -1543,8 +1665,6 @@
         rowSumMaterials.classList.add('hidden');
       }
 
-      renderPanelLabelStrip();
-
       document.getElementById('sum-works').textContent = formatRub(s.works_total) + ' ₽';
       document.getElementById('sum-discount-pct').textContent = s.discount_pct;
       document.getElementById('sum-discount').textContent = '−' + formatRub(s.discount_rub) + ' ₽';
@@ -1575,21 +1695,41 @@
     function updateBaseMaterialPrice(idx, val) {
       const p = parseFloat(val);
       const mats = getActiveProf().materials;
-      if (p >= 0 && mats[idx]) { mats[idx].price = p; recalcAutoMaterialsKeepCustom(); renderEstimate(); showToast('Цена материала обновлена'); }
+      if (p >= 0 && mats[idx]) { mats[idx].price = p; populateMaterialDropdown(); recalcAutoMaterialsKeepCustom(); renderEstimate(); showToast('Цена материала обновлена'); }
     }
 
     function addNewCatalogMaterial() {
       const nameEl = document.getElementById('cat-new-mat-name');
       const name = nameEl.value.trim();
-      if (!name) { showToast('Введите наименование'); return; }
+      if (!name) { showToast('Введите наименование материала'); return; }
       const unit = document.getElementById('cat-new-mat-unit').value.trim() || 'шт.';
       const price = Math.max(0, parseFloat(document.getElementById('cat-new-mat-price').value) || 0);
-      getActiveProf().materials.push({ id: 'mat_u_' + Date.now(), name, unit, price, rule: "Личная позиция мастера", volatile: false });
+      const newMat = { id: 'mat_u_' + Date.now(), name, unit, price, rule: "Личная позиция мастера", volatile: false };
+      getActiveProf().materials.push(newMat);
+      saveCustomCatalogItem(currentProfId, 'materials', newMat);
       currentMaterialsList.push({ name, unit, qty: 1, price, isCustom: true });
       nameEl.value = '';
-      renderMaterialsCatalogTable();
+      applyProfessionUI(currentProfId, false);
       renderEstimate();
-      showToast('Материал сохранён и добавлен в смету');
+      showToast('Материал сохранён в библиотеку и добавлен в смету!');
+    }
+
+    // ДОБАВЛЕНИЕ И СОХРАНЕНИЕ СВОЕЙ РАБОТЫ В БИБЛИОТЕКУ ПРОФЕССИИ
+    function addNewCatalogWork() {
+      const nameEl = document.getElementById('cat-new-work-name');
+      const name = nameEl.value.trim();
+      if (!name) { showToast('Введите наименование работы'); return; }
+      const stage = parseInt(document.getElementById('cat-new-work-stage').value, 10) || 1;
+      const unit = document.getElementById('cat-new-work-unit').value.trim() || 'шт.';
+      const price = Math.max(10, parseInt(document.getElementById('cat-new-work-price').value, 10) || 1000);
+      const newWork = { id: 'work_u_' + Date.now(), stage, cat: "Моя работа", name, unit, price };
+      getActiveProf().works.push(newWork);
+      saveCustomCatalogItem(currentProfId, 'works', newWork);
+      currentEstimateItems.push({ id: newWork.id, qty: 1 });
+      nameEl.value = '';
+      applyProfessionUI(currentProfId, false);
+      renderEstimate();
+      showToast('Работа сохранена в библиотеку и добавлена в смету!');
     }
 
     function renderCatalogTable() {
@@ -1654,7 +1794,7 @@
             <tbody>${renderRows(s.stage1_rows || [])}${renderRows(s.stage2_rows || [])}</tbody>
           </table>
         </div>
-        ${mats.length ? `<div class="mt-4 pt-3 border-t border-slate-300"><h4 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Материалы</h4><table class="w-full text-left border-collapse text-xs"><tbody>${renderRows(mats)}</tbody></table></div>` : ''}
+        ${mats.length ? `<div class="mt-4 pt-3 border-t border-slate-300"><h4 class="text-xs font-bold uppercase text-slate-700 mb-2">2. Материалы и конструкции</h4><table class="w-full text-left border-collapse text-xs"><tbody>${renderRows(mats)}</tbody></table></div>` : ''}
         <div class="mt-4 bg-slate-100 rounded-xl p-4 text-right space-y-1">
           <div class="text-xs">Работы: <strong class="mono">${formatRub(s.works_total)} ₽</strong></div>
           <div class="text-xs">Материалы: <strong class="mono">${formatRub(s.materials_total)} ₽</strong></div>
