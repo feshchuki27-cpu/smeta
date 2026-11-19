@@ -910,14 +910,25 @@
         prepay: s.prepay
       };
 
+      // Гарантируем укладку JSON в жёсткий лимит Telegram sendData (4096 байт)
+      let jsonPayload = JSON.stringify(payloadToBot);
+      if (new Blob([jsonPayload]).size > 3900) {
+        payloadToBot.rooms = [];
+        payloadToBot.stage1_rows = payloadToBot.stage1_rows.map(r => ({ ...r, name: r.name.slice(0, 38) }));
+        payloadToBot.stage2_rows = payloadToBot.stage2_rows.map(r => ({ ...r, name: r.name.slice(0, 38) }));
+        payloadToBot.materials = payloadToBot.materials.map(m => ({ ...m, name: m.name.slice(0, 38) }));
+        jsonPayload = JSON.stringify(payloadToBot);
+      }
+
       try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
-          window.Telegram.WebApp.sendData(JSON.stringify(payloadToBot));
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
+          window.Telegram.WebApp.sendData(jsonPayload);
+          showToast('Отправляю обновлённую смету в Telegram...');
           return;
         }
       } catch (e) {}
 
-      showToast('Смета сохранена в «Мои сметы». Для получения PDF откройте редактор через кнопку «✏️ Редактировать эту смету» в чате бота.');
+      showToast('Смета сохранена в «Мои сметы». Для выгрузки PDF откройте смету кнопкой «✏️ Редактировать эту смету» в чате бота.');
     }
 
     function switchTab(tabName) {
@@ -1325,7 +1336,7 @@
 
     function requestYooKassaPayment() {
       try {
-        if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) {
+        if (window.Telegram && window.Telegram.WebApp && typeof window.Telegram.WebApp.sendData === 'function') {
           window.Telegram.WebApp.sendData(JSON.stringify({ action: "pay_yookassa_150" }));
           closeUnlockModal();
           return;
